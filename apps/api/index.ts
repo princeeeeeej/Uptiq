@@ -2,11 +2,12 @@ import express from "express"
 import {prismaclient} from "store/client"
 import { AuthInput } from "./types";
 import jwt from "jsonwebtoken"
+import { authMiddleware } from "./middleware";
 
 const app = express();
 app.use(express.json())
 
-app.post("/website", async(req,res) => {
+app.post("/website",authMiddleware ,async(req,res) => {
     if(!req.body.url){
         res.status(411).json({})
         return
@@ -24,10 +25,10 @@ app.post("/website", async(req,res) => {
     })
 })
 
-app.get("/status/:websiteId", async(req, res) => {
+app.get("/status/:websiteId",authMiddleware, async(req, res) => {
     const website = await prismaclient.website.findFirst({
         where:{
-            user_id: req.userId,
+            user_id: req.userId!,
             id: req.params.websiteId
         },
         include:{
@@ -56,7 +57,6 @@ app.get("/status/:websiteId", async(req, res) => {
 app.post("/user/signup", async(req, res) => {
     const data = AuthInput.safeParse(req.body);
     if(!data.success){
-        console.log(data.error)
         res.status(403).send("")
         return
     }
@@ -71,7 +71,6 @@ app.post("/user/signup", async(req, res) => {
             id: user.id
         })
     }catch (e) {
-    console.error("PRISMA ERROR:", e);
     res.status(500).json({
         error: String(e)
     });
