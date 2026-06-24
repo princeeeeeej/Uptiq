@@ -8,41 +8,193 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
-  id       String @id @default(uuid())
-  username String @unique
-  password String
-  websites website[]
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  websites      Website[]
+  alertChannels AlertChannel[]
+
+  @@map("users")
 }
 
-model website {
-  id        String @id @default(uuid())
-  url       String
-  timeAdded DateTime
-  user_id   String
-  user      user @relation(fields: [user_id], references: [id])
-  ticks     website_tick[]
+model Website {
+  id     String @id @default(uuid())
+  userId String
+
+  name String
+  url  String
+  slug String @unique
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  ticks       WebsiteTick[]
+  status      WebsiteStatusCurrent?
+  sslStatus   WebsiteSSLStatus?
+  incidents   Incident[]
+  alertEvents AlertEvent[]
+
+  @@index([userId])
+  @@index([slug])
+  @@map("websites")
 }
 
-model region {
-  id              String  @id   @default(uuid())
-  name            String
-  ticks           website_tick[]
+model Region {
+  id String @id @default(uuid())
+
+  code String @unique
+  name String
+
+  ticks WebsiteTick[]
+
+  @@map("regions")
 }
 
-model website_tick {
-  id                String  @id   @default(uuid())
-  response_time_ms  Int
-  created_at        DateTime 
-  status            website_status
-  region            region   @relation(fields: [region_id], references: [id])
-  website           website  @relation(fields: [website_id], references: [id])
-  region_id         String
-  website_id        String
+model WebsiteTick {
+  id String @id @default(uuid())
+
+  websiteId String
+  regionId  String
+
+  status WebsiteStatus
+
+  responseTimeMs Int?
+
+  statusCode Int?
+
+  errorMessage String?
+
+  checkedAt DateTime @default(now())
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  region Region @relation(fields: [regionId], references: [id])
+
+  @@index([websiteId, checkedAt])
+  @@index([regionId, checkedAt])
+  @@index([websiteId, status])
+  @@map("website_ticks")
 }
 
-enum website_status{
-  Up
-  Down
-  Unknown
+model WebsiteStatusCurrent {
+  websiteId String @id
+
+  currentStatus WebsiteStatus @default(UNKNOWN)
+
+  consecutiveFails Int @default(0)
+
+  lastCheckedAt DateTime?
+
+  lastResponseTimeMs Int?
+
+  consensusRegions Int @default(0)
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@map("website_status_current")
+}
+
+model WebsiteSSLStatus {
+  websiteId String @id
+
+  issuer String?
+
+  validFrom  DateTime?
+  validUntil DateTime?
+
+  daysRemaining Int?
+
+  lastCheckedAt DateTime @default(now())
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@map("website_ssl_status")
+}
+
+model Incident {
+  id String @id @default(uuid())
+
+  websiteId String
+
+  startedAt DateTime
+
+  resolvedAt DateTime?
+
+  reason String?
+
+  durationSeconds Int?
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId])
+  @@index([startedAt])
+  @@map("incidents")
+}
+
+model AlertChannel {
+  id String @id @default(uuid())
+
+  userId String
+
+  type AlertType
+
+  config Json
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  alertEvents AlertEvent[]
+
+  @@index([userId])
+  @@map("alert_channels")
+}
+
+model AlertEvent {
+  id String @id @default(uuid())
+
+  websiteId String
+
+  alertChannelId String
+
+  eventType AlertEventType
+
+  createdAt DateTime @default(now())
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  channel AlertChannel @relation(fields: [alertChannelId], references: [id], onDelete: Cascade)
+
+  @@index([websiteId])
+  @@index([createdAt])
+  @@map("alert_events")
+}
+
+enum WebsiteStatus {
+  UP
+  DOWN
+  UNKNOWN
+  REGIONAL_ANOMALY
+}
+
+enum AlertType {
+  EMAIL
+  WEBHOOK
+  DISCORD
+  SLACK
+}
+
+enum AlertEventType {
+  DOWN
+  RECOVERED
+  SSL_EXPIRING
 }

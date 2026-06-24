@@ -1,89 +1,96 @@
-import { xAck, xAckBulk, xReadGroup } from "redisstream/client";
-import { prismaclient } from "store/client";
+import {
+  xAckBulk,
+  xCreateGroup,
+  xReadGroup,
+  reclaimStuck,
+  CHECK_STREAM,
+  type WebsiteEvent,
+} from 'redisstream/client';
+import { prismaclient } from 'store/client';
 
 const REGION_ID = process.env.REGION_ID!;
 const WORKER_ID = process.env.WORKER_ID!;
 
-if (!REGION_ID) {
-  throw new Error("Region not provided");
-}
+if (!REGION_ID) throw new Error('REGION_ID not provided');
+if (!WORKER_ID) throw new Error('WORKER_ID not provided');
 
-if (!WORKER_ID) {
-  throw new Error("Worker not provided");
-}
+async function fetchWebsite(url: string, websiteId: string) {
+  const startTime = Date.now();
 
-async function main() {
-  console.log("worker started");
+  try {
+    const res = await fetch(url);
+    const responseTimeMs = Date.now() - startTime;
+    console.log({
+      websiteId,
+      url,
+    });
 
-  while (1) {
-    const response = await xReadGroup(REGION_ID, WORKER_ID);
-    if (!response) {
-      continue;
-    }
+    await prismaclient.websiteTick.create({
+      data: {
+        websiteId,
+        regionId: REGION_ID,
+        status: res.ok ? 'UP' : 'DOWN',
+        statusCode: res.status,
+        responseTimeMs,
+        checkedAt: new Date(),
+      },
+    });
+  } catch (err: any) {
+    const responseTimeMs = Date.now() - startTime;
 
-    let promises = response.map(({ message }) =>
-      fetchWebsite(message.url, message.id),
-    );
-    await Promise.all(promises);
-    console.log(promises.length);
-
-    xAckBulk(
-      REGION_ID,
-      response.map(({ id }) => id),
-    );
+    await prismaclient.websiteTick.create({
+      data: {
+        websiteId,
+        regionId: REGION_ID,
+        status: 'DOWN',
+        responseTimeMs,
+        errorMessage: err?.message ?? 'Unknown error',
+        checkedAt: new Date(),
+      },
+    });
   }
 }
 
-async function fetchWebsite(url: string, websiteId: string) {
-  return new Promise<void>((resolve, reject) => {
-    const startTime = Date.now();
-    fetch(url)
-      .then(async () => {
-        const endTime = Date.now();
-        console.log({
-          REGION_ID,
-          websiteId,
-          regionType: typeof REGION_ID,
-        });
+async function processBatch() {
+  const messages = await xReadGroup<WebsiteEvent>(
+    CHECK_STREAM,
+    REGION_ID,
+    WORKER_ID,
+  );
 
-        const region = await prismaclient.region.findUnique({
-          where: {
-            id: REGION_ID,
-          },
-        });
+  if (!messages?.length) {
+    return;
+  }
 
-        console.log("Region found:", region);
+  await Promise.all(
+    messages.map(({ message }) => fetchWebsite(message.url, message.id)),
+  );
 
-        const website = await prismaclient.website.findUnique({
-          where: {
-            id: websiteId,
-          },
-        });
-        await prismaclient.website_tick.create({
-          data: {
-            response_time_ms: endTime - startTime,
-            status: "Up",
-            region_id: REGION_ID,
-            website_id: websiteId,
-            created_at: new Date(),
-          },
-        });
-        resolve();
-      })
-      .catch(async () => {
-        const endTime = Date.now();
-        await prismaclient.website_tick.create({
-          data: {
-            response_time_ms: endTime - startTime,
-            status: "Down",
-            region_id: REGION_ID,
-            website_id: websiteId,
-            created_at: new Date(),
-          },
-        });
-        resolve();
-      });
-  });
+  await xAckBulk(
+    CHECK_STREAM,
+    REGION_ID,
+    messages.map(({ id }) => id),
+  );
+
+  console.log(`[${WORKER_ID}] processed ${messages.length} jobs`);
+}
+
+async function main() {
+  console.log(`Worker ${WORKER_ID} starting in region ${REGION_ID}`);
+
+  await xCreateGroup(CHECK_STREAM, REGION_ID);
+
+  setInterval(() => {
+    reclaimStuck(CHECK_STREAM, REGION_ID, WORKER_ID).catch(console.error);
+  }, 30_000);
+
+  while (true) {
+    try {
+      await processBatch();
+    } catch (err) {
+      console.error('processBatch error:', err);
+    }
+  }
 }
 
 main();

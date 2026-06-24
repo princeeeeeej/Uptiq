@@ -1,21 +1,28 @@
-import { prismaclient } from "store/client";
-import { xAddBulk } from "redisstream/client";
+import { prismaclient } from 'store/client';
+import { xAddBulk, CHECK_STREAM } from 'redisstream/client';
 
-async function main(){
-    let websites = await prismaclient.website.findMany({
-        select: {
-            url: true,
-            id: true
-        }
-    })
-    
-    console.log( websites.length)
-    await xAddBulk(websites.map(w => ({
-        url: w.url,
-        id: w.id
-    })))
+async function main() {
+  const websites = await prismaclient.website.findMany({
+    where: {
+      isActive: true,
+    },
+    select: {
+      id: true,
+      url: true,
+    },
+  });
+
+  console.log(`Scheduling ${websites.length} websites`);
+
+    await xAddBulk(
+    CHECK_STREAM,
+    websites.map((website) => ({
+      id: website.id,
+      url: website.url,
+    })),
+  );
 }
 
-setInterval(() => {
-    main()
-},3 * 1000 * 60)
+main();
+
+setInterval(main, 3 * 60 * 1000);
