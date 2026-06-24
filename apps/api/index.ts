@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import cors from 'cors';
 
 import { prismaclient } from 'store/client';
 import { AuthInput } from './types';
@@ -8,6 +9,7 @@ import { authMiddleware } from './middleware';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.post('/user/signup', async (req, res) => {
@@ -98,6 +100,28 @@ app.post('/user/signin', async (req, res) => {
     res.status(500).json({
       error: String(error),
     });
+  }
+});
+
+app.get('/user/me', authMiddleware, async (req, res) => {
+  try {
+    const user = await prismaclient.user.findUnique({
+      where: {
+        id: req.userId,
+      },
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
   }
 });
 
@@ -230,6 +254,6 @@ app.delete('/website/:websiteId', authMiddleware, async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('API running on port 3000');
+app.listen(8080, () => {
+  console.log('API running on port 8080');
 });

@@ -1,69 +1,76 @@
 'use client';
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CTA() {
   return (
-    <section className="py-32 px-6">
-      <div className="max-w-4xl mx-auto">
-        <div
-          className="
-          rounded-[40px]
-          border
-          border-white/10
-          bg-white/[0.03]
-          backdrop-blur-xl
-          p-16
-          text-center
-          relative
-          overflow-hidden
-          "
-        >
-          <div
-            className="
-            absolute
-            inset-0
-            bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_70%)]
-            "
-          />
+    <section className="relative py-32 px-6 mt-10">
+      <div className="max-w-5xl mx-auto relative group">
+        
+        {/* Glow behind the glass */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/0 via-violet-500/10 to-sky-500/0 rounded-[40px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        
+        {/* Glass Edge Container */}
+        <div className="relative rounded-[40px] border border-white/5 bg-zinc-950/40 backdrop-blur-3xl overflow-hidden p-16 md:p-24 text-center">
+          
+          {/* Subtle Top Edge Highlight */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          
+          {/* Very faint background mesh/radial */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.03),transparent_50%)]" />
 
           <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/5 bg-white/[0.02] text-zinc-400 text-xs font-mono tracking-widest uppercase mb-8">
+              <Sparkles className="w-3.5 h-3.5" />
+              Start Building
+            </div>
+
             <h2
               className="
               text-5xl
-              md:text-6xl
+              md:text-7xl
               font-semibold
-              tracking-[-0.06em]
+              tracking-tight
               mb-6
+              text-white
               "
             >
               Never miss
               <br />
-              another outage.
+              <span className="text-zinc-500">another outage.</span>
             </h2>
 
-            <p className="text-zinc-500 text-lg mb-10">
-              Start monitoring in minutes. No credit card required.
+            <p className="text-zinc-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+              Join thousands of engineering teams who sleep better at night. Start monitoring your infrastructure in less than 2 minutes.
             </p>
 
-            <button
+            <Link
+              href="/signup"
               className="
+              group/btn
+              relative
               inline-flex
               items-center
-              gap-2
-              px-8
-              py-4
-              rounded-2xl
+              gap-3
+              px-10
+              py-5
+              rounded-full
               bg-white
               text-black
               font-medium
-              hover:bg-zinc-200
-              transition
+              transition-all
+              duration-500
+              hover:shadow-[0_0_40px_rgba(255,255,255,0.15)]
               "
             >
-              Start Monitoring
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              <span className="relative z-10">Start Monitoring Now</span>
+              <ArrowRight className="w-5 h-5 relative z-10 group-hover/btn:translate-x-1 transition-transform" />
+            </Link>
+            
+            <div className="mt-8 text-xs font-mono tracking-wider text-zinc-600 uppercase">
+              No credit card required · 14-day free trial
+            </div>
           </div>
         </div>
       </div>

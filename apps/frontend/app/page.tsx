@@ -7,8 +7,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Noise from '@/ui/Noice';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import LiveMonitoring from '@/components/LiveMonitoring';
-import Architecture from '@/components/Architecture';
 import Features from '@/components/Features';
 import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
@@ -88,7 +86,7 @@ export default function UptiqLandingPage() {
       );
 
       gsap.fromTo(
-        '.hero-mockup',
+        '.hero-mockup-container',
         {
           opacity: 0,
           y: 40,
@@ -101,6 +99,29 @@ export default function UptiqLandingPage() {
           duration: 1,
         },
       );
+
+      gsap.to('.hero-mockup', {
+        y: 150,
+        scale: 0.85,
+        opacity: 0.2,
+        rotateX: 10,
+        scrollTrigger: {
+          trigger: '.hero-mockup-container',
+          start: 'top 40%',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+
+      gsap.to('.hero-bg', {
+        y: 300,
+        scrollTrigger: {
+          trigger: 'body',
+          start: 'top top',
+          end: '1000px top',
+          scrub: true,
+        },
+      });
 
       gsap.fromTo(
         '.fcard',
@@ -119,15 +140,19 @@ export default function UptiqLandingPage() {
         '.feat-card',
         {
           opacity: 0,
-          y: 30,
+          y: 60,
+          rotateX: -15,
         },
         {
           opacity: 1,
           y: 0,
-          stagger: 0.08,
+          rotateX: 0,
+          stagger: 0.1,
+          duration: 1,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: featRef.current,
-            start: 'top 80%',
+            start: 'top 75%',
           },
         },
       );
@@ -136,15 +161,38 @@ export default function UptiqLandingPage() {
         '.region-card',
         {
           opacity: 0,
-          y: 30,
+          x: 40,
         },
         {
           opacity: 1,
-          y: 0,
-          stagger: 0.08,
+          x: 0,
+          stagger: 0.15,
+          duration: 1,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: statusRef.current,
-            start: 'top 80%',
+            start: 'top 60%',
+          },
+        },
+      );
+
+      gsap.fromTo(
+        '.arch-title .word',
+        {
+          y: 100,
+          opacity: 0,
+          rotate: 10,
+        },
+        {
+          y: 0,
+          opacity: 1,
+          rotate: 0,
+          duration: 1.2,
+          stagger: 0.15,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: archRef.current,
+            start: 'top 75%',
           },
         },
       );
@@ -189,10 +237,6 @@ export default function UptiqLandingPage() {
       <Navbar scrolled={scrolled} />
 
       <Hero />
-
-      <LiveMonitoring statusRef={statusRef} counterRef={counterRef} />
-
-      <Architecture archRef={archRef} />
 
       <Features featRef={featRef} />
 
