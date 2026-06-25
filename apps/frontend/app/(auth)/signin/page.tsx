@@ -47,7 +47,7 @@ export default function SignInPage() {
   return (
     <div className="w-full max-w-md relative group">
       {/* Background Glow */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 to-sky-500/20 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+      <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-sky-500/20 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
       
       {/* Glass Container */}
       <div className="relative bg-zinc-950/40 backdrop-blur-3xl border border-white/10 rounded-[32px] p-10 overflow-hidden shadow-2xl">
@@ -79,7 +79,7 @@ export default function SignInPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="johndoe" 
                   required
-                  className="w-full bg-black/20 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all"
+                  className="w-full bg-black/20 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
                 />
               </div>
             </div>
@@ -87,7 +87,7 @@ export default function SignInPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-mono uppercase tracking-widest text-zinc-500">Password</label>
-                <Link href="#" className="text-xs text-violet-400 hover:text-violet-300 transition-colors">Forgot?</Link>
+                <Link href="#" className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors">Forgot?</Link>
               </div>
               <div className="relative">
                 <input 
@@ -96,7 +96,7 @@ export default function SignInPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
                   required
-                  className="w-full bg-black/20 border border-white/10 rounded-2xl py-4 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all font-mono"
+                  className="w-full bg-black/20 border border-white/10 rounded-2xl py-4 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono"
                 />
               </div>
             </div>
@@ -109,14 +109,14 @@ export default function SignInPage() {
           >
             <span className="relative z-10">{loading ? 'Signing in...' : 'Sign In'}</span>
             {!loading && <ArrowRight className="w-4 h-4 relative z-10 group-hover/btn:translate-x-1 transition-transform" />}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-violet-200 to-sky-200 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-200 to-sky-200 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
           </button>
         </form>
 
         <div className="mt-8 text-center">
           <p className="text-sm text-zinc-500">
             Don't have an account?{' '}
-            <Link href="/signup" className="text-white hover:text-violet-300 transition-colors font-medium">
+            <Link href="/signup" className="text-white hover:text-emerald-300 transition-colors font-medium">
               Sign up
             </Link>
           </p>

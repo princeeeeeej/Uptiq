@@ -286,128 +286,144 @@ export default function Hero() {
             </button>
           </Magnetic>
         </div>
-
         {/* Dashboard Mockup Container */}
         <div className="hero-mockup-container mt-20 max-w-5xl mx-auto perspective-[2000px]">
-          <div
-            className="
-            hero-mockup
-            rounded-[24px]
-            overflow-hidden
-            border
-            border-white/10
-            bg-zinc-950/60
-            backdrop-blur-2xl
-            shadow-[0_0_80px_rgba(139,92,246,0.15)]
-            flex
-            flex-col
-            "
-          >
-            {/* Mockup Header/Top Navbar */}
-            <div className="h-14 border-b border-white/5 bg-white/[0.01] px-4 md:px-6 flex items-center justify-between select-none">
-              <div className="flex items-center gap-6">
-                {/* Logo */}
-                <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 rounded-lg border border-white/10 bg-white/[0.04] flex items-center justify-center">
-                    <Activity className="w-3 h-3 text-white" />
+          <div className="hero-mockup relative rounded-[24px] border border-white/10 shadow-[0_0_80px_rgba(16,185,129,0.15)] overflow-hidden aspect-[4/3] md:aspect-[16/9] bg-[#09090b]">
+            
+            {/* Dashboard Mockup */}
+            <div className="absolute inset-0 flex p-3 gap-4">
+              {/* Floating Pill Sidebar */}
+              <div className="hidden md:flex flex-col justify-between w-16 py-6 bg-[#121214] rounded-[24px] border border-white/5 shrink-0 h-full shadow-xl">
+                <div className="flex flex-col items-center gap-8">
+                  {/* Logo */}
+                  <div className="w-10 h-10 rounded-full bg-[#18181b] flex items-center justify-center border border-white/5 shadow-md">
+                    <Activity className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <span className="font-semibold tracking-tight text-sm text-white">UPTIQ</span>
+                  
+                  {/* Navigation Icons */}
+                  <div className="flex flex-col gap-4 w-full items-center">
+                    <div className="w-10 h-10 rounded-full bg-[#18181b] flex items-center justify-center text-white shadow-md">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    </div>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-[#27272a] transition-colors">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                    </div>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-[#27272a] transition-colors">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </div>
+                  </div>
                 </div>
-                {/* Navigation */}
-                <div className="flex items-center gap-1">
+
+                {/* Bottom Actions */}
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-500 hover:text-rose-500 transition-colors">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-md">
+                    D
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <div className="flex-1 px-4 py-6 md:p-6 flex flex-col gap-5 overflow-hidden">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-medium text-white">Hello, demo_user!</h3>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full border border-white/5 bg-[#121214] flex items-center justify-center cursor-pointer hover:bg-white/5 transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    </div>
+                    <div className="w-8 h-8 rounded-full border border-white/5 bg-[#121214] flex items-center justify-center relative cursor-pointer hover:bg-white/5 transition-colors">
+                      <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Top Metrics Row */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-[#121214] rounded-2xl p-4 border border-white/5 flex items-center justify-between group hover:-translate-y-1 hover:border-white/10 transition-all duration-300 shadow-lg">
+                    <div>
+                      <p className="text-zinc-500 text-xs mb-1">Active Monitors</p>
+                      <h2 className="text-2xl font-bold text-white">4</h2>
+                    </div>
+                    <div className="w-8 h-8 rounded-xl bg-[#18181b] flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-500/50 group-hover:text-emerald-400 transition-colors"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-[#121214] rounded-2xl p-4 border border-white/5 flex items-center justify-between group hover:-translate-y-1 hover:border-white/10 transition-all duration-300 shadow-lg">
+                    <div>
+                      <p className="text-zinc-500 text-xs mb-1">Global Regions</p>
+                      <h2 className="text-2xl font-bold text-white">2</h2>
+                    </div>
+                    <div className="w-8 h-8 rounded-xl bg-[#18181b] flex items-center justify-center relative overflow-hidden group-hover:border-emerald-500/20 transition-colors">
+                      <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="flex gap-1 relative z-10 group-hover:animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#10b981] rounded-2xl p-4 border border-[#10b981] flex items-center justify-between relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.15)] cursor-pointer">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-emerald-600/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative z-10">
+                      <p className="text-emerald-950/80 text-xs font-medium mb-1 group-hover:text-emerald-950 transition-colors">System Status</p>
+                      <h2 className="text-2xl font-bold text-white">100%</h2>
+                    </div>
+                    <div className="relative z-10 px-2 py-1 rounded-full bg-emerald-900/30 text-white text-[10px] font-medium backdrop-blur-sm border border-white/20 flex items-center gap-1.5 shadow-[inset_0_0_10px_rgba(255,255,255,0.1)]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+                      Operational
+                    </div>
+                  </div>
+                </div>
+
+                {/* Monitors Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[
-                    { name: 'Overview', active: true },
-                    { name: 'Incidents', active: false },
-                    { name: 'Settings', active: false },
-                  ].map((item) => (
-                    <div
-                      key={item.name}
-                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-                        item.active
-                          ? 'bg-white/10 text-white'
-                          : 'text-zinc-500 hover:text-zinc-300'
-                      }`}
-                    >
-                      {item.name}
+                    { name: 'Portfolio', url: 'https://portfolio.vercel.app', res: '93ms' },
+                    { name: 'Github', url: 'https://github.com', res: '114ms' },
+                    { name: 'Facebook', url: 'https://facebook.com', res: '843ms' },
+                    { name: 'Google', url: 'https://google.com', res: '321ms' }
+                  ].map((monitor) => (
+                    <div key={monitor.name} className="bg-[#121214] border border-white/5 rounded-2xl p-4 hover:border-emerald-500/30 transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] hover:-translate-y-1 duration-300 group cursor-pointer relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="flex justify-between items-start mb-4 relative z-10">
+                        <div>
+                          <h3 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">{monitor.name}</h3>
+                          <p className="text-xs text-zinc-500 truncate max-w-[120px]">{monitor.url}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-zinc-900/50 border border-white/5 text-[9px] font-medium text-emerald-400 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/5 transition-all">
+                          <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_5px_#10b981]" />
+                          OPERATIONAL
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-4 relative z-10">
+                        <div className="bg-[#18181b] rounded-xl p-2 border border-white/5 group-hover:border-white/10 transition-colors">
+                          <p className="text-[9px] text-zinc-500 mb-0.5 flex items-center gap-1"><Activity className="w-2.5 h-2.5 text-emerald-500/50 group-hover:text-emerald-400 transition-colors"/> RESPONSE</p>
+                          <p className="text-sm font-semibold text-white">{monitor.res}</p>
+                        </div>
+                        <div className="bg-[#18181b] rounded-xl p-2 border border-white/5 group-hover:border-white/10 transition-colors">
+                          <p className="text-[9px] text-zinc-500 mb-0.5 flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-sky-500/50 group-hover:text-sky-400 transition-colors"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> CHECKED</p>
+                          <p className="text-sm font-semibold text-white">Just now</p>
+                        </div>
+                      </div>
                     </div>
                   ))}
-                </div>
-              </div>
-              {/* User Actions */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-                  <div className="w-5 h-5 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
-                    <span className="text-[8px] font-bold text-violet-300">DU</span>
-                  </div>
-                  <span className="hidden sm:inline">demo_user</span>
-                </div>
-                <div className="text-zinc-500 hover:text-rose-400 text-xs font-medium transition-colors">Sign Out</div>
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="flex-1 p-6 md:p-8 flex flex-col gap-6">
-              {/* Header */}
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-xl font-semibold">Global Traffic</h3>
-                  <div className="text-sm text-zinc-400 mt-1">Real-time request latency and throughput</div>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium tracking-wide uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,1)]" />
-                  Healthy
-                </div>
-              </div>
-
-              {/* Chart Area */}
-              <div className="h-48 rounded-2xl border border-white/5 bg-white/[0.02] relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-t from-violet-500/10 to-transparent" />
-                <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                  <path
-                    d="M0,80 Q10,70 20,85 T40,60 T60,75 T80,30 T100,50 L100,100 L0,100 Z"
-                    fill="url(#chart-gradient)"
-                    opacity="0.2"
-                  />
-                  <path
-                    d="M0,80 Q10,70 20,85 T40,60 T60,75 T80,30 T100,50"
-                    fill="none"
-                    stroke="url(#line-gradient)"
-                    strokeWidth="2"
-                    className="drop-shadow-[0_0_8px_rgba(167,139,250,0.8)]"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                  <defs>
-                    <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8b5cf6" />
-                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-                    </linearGradient>
-                    <linearGradient id="line-gradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#38bdf8" />
-                      <stop offset="50%" stopColor="#a78bfa" />
-                      <stop offset="100%" stopColor="#c084fc" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                
-                {/* Simulated Data Points */}
-                <div className="absolute right-[20%] top-[30%] -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,1),0_0_30px_#c084fc] animate-pulse" />
-              </div>
-
-              {/* Bottom Metrics */}
-              <div className="grid md:grid-cols-3 gap-4">
-                {[
-                  { label: 'Uptime (30d)', value: '99.99%', sub: '+0.02%', positive: true },
-                  { label: 'Avg Latency', value: '42ms', sub: '-12ms', positive: true },
-                  { label: 'Active Regions', value: '14 / 14', sub: 'All operational', positive: true },
-                ].map((stat) => (
-                  <div key={stat.label} className="p-4 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors cursor-default">
-                    <div className="text-xs text-zinc-500 font-mono tracking-wide uppercase">{stat.label}</div>
-                    <div className="mt-2 flex items-baseline justify-between">
-                      <span className="text-2xl font-semibold tracking-tight text-white">{stat.value}</span>
-                      <span className={`text-xs ${stat.positive ? 'text-emerald-400' : 'text-rose-400'}`}>{stat.sub}</span>
+                  
+                  {/* Add New Card */}
+                  <div className="flex flex-col items-center justify-center h-full min-h-[140px] bg-[#121214] border border-white/10 border-dashed rounded-2xl hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer group">
+                    <div className="w-8 h-8 rounded-full bg-[#18181b] border border-white/5 flex items-center justify-center mb-2 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 text-zinc-400 group-hover:scale-110 shadow-[0_0_15px_rgba(16,185,129,0)] group-hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     </div>
+                    <span className="font-medium text-xs text-white group-hover:text-emerald-400 transition-colors">Add New Monitor</span>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>

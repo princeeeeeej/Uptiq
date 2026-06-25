@@ -241,6 +241,9 @@ app.get('/website/:websiteId/ticks', authMiddleware, async (req, res) => {
       where: { websiteId },
       orderBy: { checkedAt: 'desc' },
       take: 50,
+      include: {
+        region: true,
+      }
     });
 
     res.json({

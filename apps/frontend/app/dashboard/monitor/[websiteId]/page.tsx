@@ -54,6 +54,10 @@ interface Tick {
   statusCode: number | null;
   errorMessage: string | null;
   checkedAt: string;
+  region?: {
+    name: string;
+    code: string;
+  };
 }
 
 interface Incident {
@@ -204,28 +208,55 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
   const latencyStats = getResponseTimeStats();
 
   // Prepare chart data format for Recharts
-  const chartData = ticks.map(t => ({
-    name: new Date(t.checkedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    time: t.checkedAt,
-    latency: t.responseTimeMs ?? 0,
-    status: t.status
-  }));
+  const groupedChartData = new Map();
+  ticks.forEach(t => {
+    const date = new Date(t.checkedAt);
+    date.setSeconds(0, 0); // Group by minute
+    const timeKey = date.getTime();
+    
+    if (!groupedChartData.has(timeKey)) {
+      groupedChartData.set(timeKey, {
+        name: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: date.toISOString(),
+      });
+    }
+    
+    const entry = groupedChartData.get(timeKey);
+    const regionName = t.region?.name || 'Unknown';
+    // Only set if not already set, or just overwrite (since there should be 1 per region per minute)
+    entry[regionName] = t.responseTimeMs ?? 0;
+    entry[`${regionName}_status`] = t.status;
+  });
 
-  // Uptime Grid (Last 30 ticks)
-  const last30Ticks = ticks.slice(-30);
-  const emptyBlockCount = Math.max(0, 30 - last30Ticks.length);
+  const chartData = Array.from(groupedChartData.values());
+
+  const activeRegionsList = Array.from(new Set(ticks.map(t => t.region?.name).filter(Boolean))) as string[];
+  const activeRegions = activeRegionsList.join(', ');
+
+  // Group ticks by region for the Uptime Grid
+  const regionTicksMap = new Map<string, Tick[]>();
+  activeRegionsList.forEach(r => regionTicksMap.set(r, []));
+  if (activeRegionsList.length === 0) regionTicksMap.set('Unknown', []);
+  
+  ticks.forEach(t => {
+    const rName = t.region?.name || 'Unknown';
+    if (!regionTicksMap.has(rName)) regionTicksMap.set(rName, []);
+    regionTicksMap.get(rName)!.push(t);
+  });
+
+
 
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto space-y-8 animate-pulse py-10">
-        <div className="h-10 bg-zinc-900/50 w-48 rounded-xl border border-white/5" />
-        <div className="h-28 bg-zinc-900/50 w-full rounded-3xl border border-white/5" />
+        <div className="h-10 bg-zinc-900/50 w-48 rounded-xl border border-white/10" />
+        <div className="h-28 bg-zinc-900/50 w-full rounded-3xl border border-white/10" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-32 bg-zinc-900/50 rounded-2xl border border-white/5" />
+            <div key={i} className="h-32 bg-zinc-900/50 rounded-2xl border border-white/10" />
           ))}
         </div>
-        <div className="h-64 bg-zinc-900/50 w-full rounded-3xl border border-white/5" />
+        <div className="h-64 bg-zinc-900/50 w-full rounded-3xl border border-white/10" />
       </div>
     );
   }
@@ -240,7 +271,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
         <p className="text-zinc-400 mb-8">{error || 'Monitor could not be loaded.'}</p>
         <Link 
           href="/dashboard" 
-          className="px-5 py-2.5 bg-white text-black font-semibold rounded-xl hover:scale-[1.02] transition-transform inline-flex items-center gap-2"
+          className="px-5 py-2.5 bg-[#121214] text-white font-semibold rounded-xl hover:scale-[1.02] transition-transform inline-flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
@@ -250,10 +281,10 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
   }
 
   const statusColorMap = {
-    UP: 'bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)]',
-    DOWN: 'bg-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.6)]',
-    UNKNOWN: 'bg-zinc-500 shadow-[0_0_20px_rgba(113,113,122,0.6)]',
-    REGIONAL_ANOMALY: 'bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.6)]',
+    UP: 'bg-[#10b981]',
+    DOWN: 'bg-rose-500',
+    UNKNOWN: 'bg-zinc-300',
+    REGIONAL_ANOMALY: 'bg-amber-500',
   }[details.currentStatus];
 
   const statusTextMap = {
@@ -264,10 +295,10 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
   }[details.currentStatus];
 
   const statusTextColorMap = {
-    UP: 'text-emerald-400',
-    DOWN: 'text-rose-400',
+    UP: 'text-[#10b981]',
+    DOWN: 'text-rose-500',
     UNKNOWN: 'text-zinc-400',
-    REGIONAL_ANOMALY: 'text-amber-400',
+    REGIONAL_ANOMALY: 'text-amber-500',
   }[details.currentStatus];
 
   return (
@@ -278,7 +309,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
         <div className="flex items-center gap-4">
           <Link 
             href="/dashboard"
-            className="group flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900/40 backdrop-blur-md border border-white/5 text-zinc-400 hover:text-white hover:border-white/20 transition-all duration-300"
+            className="group flex items-center justify-center w-10 h-10 rounded-xl bg-[#121214] border border-white/10 hover:bg-[#18181b] text-zinc-400 hover:text-white hover:border-white/20 transition-all duration-300"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           </Link>
@@ -289,12 +320,12 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                 href={details.url} 
                 target="_blank" 
                 rel="noreferrer"
-                className="text-zinc-500 hover:text-zinc-300 transition-colors inline-flex items-center gap-1 text-sm font-medium"
+                className="text-zinc-400 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 text-sm font-medium"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
-            <p className="text-zinc-500 text-sm tracking-wide mt-0.5">{details.url}</p>
+            <p className="text-zinc-400 text-sm tracking-wide mt-0.5">{details.url}</p>
           </div>
         </div>
         
@@ -302,7 +333,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
           <button
             onClick={() => fetchAllData(true)}
             disabled={refreshing}
-            className="p-2.5 rounded-xl bg-zinc-900/40 backdrop-blur-md border border-white/5 text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+            className="p-2.5 rounded-xl bg-[#121214] border border-white/10 hover:bg-[#18181b] text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
             title="Refresh statistics"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -310,7 +341,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
           
           <button
             onClick={() => setIsDeleteOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 font-medium rounded-xl hover:bg-rose-500/20 hover:border-rose-500/30 transition-all duration-300"
+            className="flex items-center gap-2 px-4 py-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 font-medium rounded-xl hover:bg-rose-500/20 hover:border-rose-500/30 transition-all duration-300"
           >
             <Trash2 className="w-4 h-4" />
             <span>Delete Monitor</span>
@@ -319,10 +350,10 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
       </div>
 
       {/* Main Status Hero Banner */}
-      <div className="relative overflow-hidden bg-zinc-900/35 border border-white/10 rounded-[28px] p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 backdrop-blur-xl animate-panel">
-        <div className="absolute inset-0 bg-gradient-to-r from-white/[0.02] to-transparent pointer-events-none" />
+      <div className="relative overflow-hidden bg-[#121214] border border-white/5 rounded-[24px] shadow-sm p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6  animate-panel">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/[0.01] to-transparent pointer-events-none" />
         <div className="flex items-center gap-5 relative z-10">
-          <div className="h-16 w-16 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner">
+          <div className="h-16 w-16 rounded-2xl bg-[#18181b] border border-white/5 flex items-center justify-center shadow-inner">
             <div className={`w-4 h-4 rounded-full ${statusColorMap} animate-pulse`} />
           </div>
           <div>
@@ -341,36 +372,46 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
 
         <div className="flex flex-wrap gap-4 relative z-10">
           {details.ssl ? (
-            <div className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-black/30 border border-white/5`}>
+            <div className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#18181b] border border-white/5`}>
               {details.ssl.daysRemaining && details.ssl.daysRemaining > 15 ? (
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <ShieldCheck className="w-5 h-5 text-[#10b981]" />
               ) : (
-                <ShieldAlert className="w-5 h-5 text-amber-400" />
+                <ShieldAlert className="w-5 h-5 text-amber-500" />
               )}
               <div>
-                <div className="text-xs text-zinc-500 font-medium uppercase tracking-wider">SSL Security</div>
+                <div className="text-xs text-zinc-400 font-medium uppercase tracking-wider">SSL Security</div>
                 <div className="text-sm font-semibold text-white">
                   {details.ssl.daysRemaining ? `${details.ssl.daysRemaining} Days Left` : 'Active'}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-black/30 border border-white/5 text-zinc-400">
-              <ShieldAlert className="w-5 h-5 text-zinc-500" />
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#18181b] border border-white/5 text-zinc-400">
+              <ShieldAlert className="w-5 h-5 text-zinc-400" />
               <div>
-                <div className="text-xs text-zinc-500 font-medium uppercase tracking-wider">SSL Status</div>
+                <div className="text-xs text-zinc-400 font-medium uppercase tracking-wider">SSL Status</div>
                 <div className="text-sm font-semibold">Not SSL Monitored</div>
               </div>
             </div>
           )}
 
-          <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-black/30 border border-white/5">
-            <Clock className="w-5 h-5 text-violet-400" />
+          <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#18181b] border border-white/5">
+            <Clock className="w-5 h-5 text-[#10b981]" />
             <div>
-              <div className="text-xs text-zinc-500 font-medium uppercase tracking-wider">Monitoring Period</div>
+              <div className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Monitoring Period</div>
               <div className="text-sm font-semibold text-white">Every 3 minutes</div>
             </div>
           </div>
+
+          {activeRegions && (
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#18181b] border border-white/5">
+              <Activity className="w-5 h-5 text-sky-500" />
+              <div>
+                <div className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Active Regions</div>
+                <div className="text-sm font-semibold text-white truncate max-w-[150px]">{activeRegions}</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -378,46 +419,46 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Stat: Uptime */}
-        <div className="p-6 bg-zinc-900/35 border border-white/10 rounded-2xl flex flex-col justify-between backdrop-blur-xl animate-panel">
+        <div className="p-6 bg-[#121214] border border-white/5 rounded-2xl shadow-sm flex flex-col justify-between  animate-panel">
           <div className="flex items-center justify-between text-zinc-400 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider">Uptime (Recent)</span>
-            <Activity className="w-4 h-4 text-emerald-400" />
+            <Activity className="w-4 h-4 text-[#10b981]" />
           </div>
           <div>
             <div className="text-3xl font-semibold text-white mb-1">
               {uptime.percent}%
             </div>
-            <p className="text-xs text-zinc-500 truncate">{uptime.label}</p>
+            <p className="text-xs text-zinc-400 truncate">{uptime.label}</p>
           </div>
         </div>
 
         {/* Stat: Avg Latency */}
-        <div className="p-6 bg-zinc-900/35 border border-white/10 rounded-2xl flex flex-col justify-between backdrop-blur-xl animate-panel">
+        <div className="p-6 bg-[#121214] border border-white/5 rounded-2xl shadow-sm flex flex-col justify-between  animate-panel">
           <div className="flex items-center justify-between text-zinc-400 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider">Avg Latency</span>
-            <Clock className="w-4 h-4 text-violet-400" />
+            <Clock className="w-4 h-4 text-[#10b981]" />
           </div>
           <div>
             <div className="text-3xl font-semibold text-white mb-1">
               {latencyStats.avg ? `${latencyStats.avg}ms` : '--'}
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-400">
               Min: {latencyStats.min}ms / Max: {latencyStats.max}ms
             </p>
           </div>
         </div>
 
         {/* Stat: SSL Cert Issuer */}
-        <div className="p-6 bg-zinc-900/35 border border-white/10 rounded-2xl flex flex-col justify-between backdrop-blur-xl animate-panel">
+        <div className="p-6 bg-[#121214] border border-white/5 rounded-2xl shadow-sm flex flex-col justify-between  animate-panel">
           <div className="flex items-center justify-between text-zinc-400 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider">SSL Certificate</span>
-            <ShieldCheck className="w-4 h-4 text-sky-400" />
+            <ShieldCheck className="w-4 h-4 text-sky-500" />
           </div>
           <div>
             <div className="text-xl font-semibold text-white mb-1 truncate">
               {details.ssl?.issuer || 'No Certificate'}
             </div>
-            <p className="text-xs text-zinc-500 truncate">
+            <p className="text-xs text-zinc-400 truncate">
               {details.ssl?.validUntil 
                 ? `Expires ${new Date(details.ssl.validUntil).toLocaleDateString()}` 
                 : 'Check secure protocols.'}
@@ -426,16 +467,16 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
         </div>
 
         {/* Stat: Outages / Incident Count */}
-        <div className="p-6 bg-zinc-900/35 border border-white/10 rounded-2xl flex flex-col justify-between backdrop-blur-xl animate-panel">
+        <div className="p-6 bg-[#121214] border border-white/5 rounded-2xl shadow-sm flex flex-col justify-between  animate-panel">
           <div className="flex items-center justify-between text-zinc-400 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Incidents</span>
-            <AlertCircle className="w-4 h-4 text-rose-400" />
+            <AlertCircle className="w-4 h-4 text-rose-500" />
           </div>
           <div>
             <div className="text-3xl font-semibold text-white mb-1">
               {incidents.length}
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-400">
               {incidents.filter(i => !i.resolvedAt).length > 0 
                 ? 'Active outages currently detected' 
                 : 'All past incidents resolved'}
@@ -446,31 +487,36 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
       </div>
 
       {/* SVG Response Time Chart */}
-      <div className="p-6 bg-zinc-900/35 border border-white/10 rounded-3xl backdrop-blur-xl animate-panel space-y-6">
+      <div className="p-6 bg-[#121214] border border-white/5 rounded-[24px] shadow-sm  animate-panel space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 className="text-lg font-semibold text-white mb-0.5">Response Time History</h2>
-            <p className="text-zinc-500 text-xs">Performance patterns and latency checks over the last 50 queries.</p>
+            <p className="text-zinc-400 text-xs">Performance patterns and latency checks over the last 50 queries.</p>
           </div>
           
           {ticks.length > 0 && (
             <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1.5 text-zinc-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
-                <span>Latency</span>
-              </div>
+              {activeRegionsList.map((region, idx) => {
+                const colors = ['bg-[#10b981]', 'bg-slate-400'];
+                return (
+                  <div key={region} className="flex items-center gap-1.5 text-zinc-400">
+                    <span className={`w-2.5 h-2.5 rounded-full ${colors[idx % colors.length]}`} />
+                    <span>{region}</span>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
 
         {ticks.length === 0 ? (
-          <div className="h-48 border border-white/5 border-dashed rounded-2xl bg-black/10 flex items-center justify-center text-zinc-500 text-sm">
+          <div className="h-48 border border-white/10 border-dashed rounded-2xl bg-[#18181b] flex items-center justify-center text-zinc-400 text-sm">
             Insufficient telemetry data to display graph.
           </div>
         ) : (
           <div className="h-[180px] w-full relative">
             {!isMounted ? (
-              <div className="h-full w-full bg-zinc-900/10 border border-white/5 border-dashed rounded-2xl animate-pulse" />
+              <div className="h-full w-full bg-zinc-900/10 border border-white/10 border-dashed rounded-2xl animate-pulse" />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
@@ -478,15 +524,20 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                   margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
                 >
                   <defs>
-                    <linearGradient id="chartGradientRecharts" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="rgb(139, 92, 246)" stopOpacity="0.22" />
-                      <stop offset="100%" stopColor="rgb(139, 92, 246)" stopOpacity="0" />
-                    </linearGradient>
+                    {activeRegionsList.map((region, idx) => {
+                      const rgb = idx % 2 === 0 ? "16, 185, 129" : "148, 163, 184";
+                      return (
+                        <linearGradient key={region} id={`chartGradient-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={`rgb(${rgb})`} stopOpacity="0.22" />
+                          <stop offset="100%" stopColor={`rgb(${rgb})`} stopOpacity="0" />
+                        </linearGradient>
+                      );
+                    })}
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" vertical={false} />
                   <XAxis 
                     dataKey="name" 
-                    stroke="rgba(255,255,255,0.25)" 
+                    stroke="rgba(0,0,0,0.15)" 
                     fontSize={9} 
                     fontFamily="monospace"
                     tickLine={false}
@@ -494,7 +545,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                     dy={10}
                   />
                   <YAxis 
-                    stroke="rgba(255,255,255,0.25)" 
+                    stroke="rgba(0,0,0,0.15)" 
                     fontSize={9} 
                     fontFamily="monospace"
                     tickLine={false}
@@ -506,42 +557,59 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="p-3.5 rounded-2xl bg-zinc-950/95 border border-white/10 text-white shadow-[0_10px_35px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-1 text-[11px] min-w-[125px]">
-                            <div className="flex items-center justify-between gap-3 border-b border-white/5 pb-1 mb-1 font-mono">
-                              <span className="text-zinc-400">Response</span>
-                              <span className="font-semibold text-violet-400">{data.latency}ms</span>
+                          <div className="p-3.5 rounded-2xl bg-zinc-950/95 border border-white/10 text-white shadow-[0_10px_35px_rgba(0,0,0,0.6)]  flex flex-col gap-1 text-[11px] min-w-[125px]">
+                            <div className="text-[10px] text-zinc-400 font-mono mb-2 border-b border-white/10 pb-1">
+                              {new Date(data.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </div>
-                            <div className="flex items-center justify-between gap-3 text-zinc-500 font-mono text-[10px]">
-                              <span>Status</span>
-                              <span className={`font-semibold uppercase tracking-wider ${data.status === 'UP' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                {data.status}
-                              </span>
-                            </div>
-                            <div className="text-[10px] text-zinc-500 font-mono mt-0.5 whitespace-nowrap">
-                              {new Date(data.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                            </div>
+                            
+                            {activeRegionsList.map((region, idx) => {
+                              if (data[region] === undefined) return null;
+                              const colorClass = idx % 2 === 0 ? "text-[#10b981]" : "text-sky-500";
+                              const status = data[`${region}_status`];
+                              return (
+                                <div key={region} className="flex items-center justify-between gap-4 mb-1">
+                                  <div className="flex items-center gap-1.5">
+                                    <div className={`w-1.5 h-1.5 rounded-full ${idx % 2 === 0 ? 'bg-[#10b981]' : 'bg-sky-500'}`} />
+                                    <span className="text-zinc-400">{region}</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className={`font-semibold uppercase tracking-wider text-[9px] ${status === 'UP' ? 'text-[#10b981]' : 'text-rose-500'}`}>
+                                      {status}
+                                    </span>
+                                    <span className={`font-semibold ${colorClass}`}>{data[region]}ms</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         );
                       }
                       return null;
                     }}
-                    cursor={{ stroke: 'rgba(139, 92, 246, 0.4)', strokeWidth: 1.5 }}
+                    cursor={{ stroke: 'rgba(16, 185, 129, 0.4)', strokeWidth: 1.5 }}
                   />
-                  <Area
-                    type="monotone"
-                    dataKey="latency"
-                    stroke="rgb(139, 92, 246)"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#chartGradientRecharts)"
-                    activeDot={{ 
-                      r: 5, 
-                      fill: '#ffffff', 
-                      stroke: 'rgb(139, 92, 246)', 
-                      strokeWidth: 2,
-                      className: "shadow-2xl" 
-                    }}
-                  />
+                  {activeRegionsList.map((region, idx) => {
+                    const rgb = idx % 2 === 0 ? "16, 185, 129" : "148, 163, 184";
+                    const hex = idx % 2 === 0 ? "#6B8E7B" : "#94a3b8";
+                    return (
+                      <Area
+                        key={region}
+                        type="monotone"
+                        dataKey={region}
+                        stroke={`rgb(${rgb})`}
+                        strokeWidth={2}
+                        fillOpacity={1}
+                        fill={`url(#chartGradient-${idx})`}
+                        activeDot={{ 
+                          r: 4, 
+                          fill: '#ffffff', 
+                          stroke: hex, 
+                          strokeWidth: 2,
+                          className: "shadow-2xl" 
+                        }}
+                      />
+                    );
+                  })}
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -553,59 +621,68 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left: Uptime Bar Panel */}
-        <div className="lg:col-span-2 p-6 bg-zinc-900/35 border border-white/10 rounded-3xl backdrop-blur-xl animate-panel flex flex-col justify-between space-y-6">
+        <div className="lg:col-span-2 p-6 bg-[#121214] border border-white/5 rounded-[24px] shadow-sm  animate-panel flex flex-col justify-between space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-white mb-0.5">Uptime Status Grid</h2>
-            <p className="text-zinc-500 text-xs">Chronological timeline mapping the operational stability of your service.</p>
+            <p className="text-zinc-400 text-xs">Chronological timeline mapping the operational stability of your service.</p>
           </div>
 
-          <div className="flex flex-col gap-3">
-            {/* The actual horizontal bars */}
-            <div className="flex items-center gap-[4px] w-full justify-between p-4 bg-black/35 rounded-2xl border border-white/5 min-h-[64px]">
-              {/* Padding for early periods */}
-              {Array.from({ length: emptyBlockCount }).map((_, i) => (
-                <div 
-                  key={`empty-${i}`} 
-                  className="flex-1 h-8 bg-zinc-800/10 rounded-full border border-white/[0.02]"
-                  title="No telemetry recorded"
-                />
-              ))}
+          <div className="flex flex-col gap-5">
+            {Array.from(regionTicksMap.entries()).map(([regionName, regionTicks]) => {
+              const last30Ticks = regionTicks.slice(-30);
+              const emptyBlockCount = Math.max(0, 30 - last30Ticks.length);
 
-              {/* Actual Ticks */}
-              {last30Ticks.map((tick, index) => {
-                const color = tick.status === 'UP' 
-                  ? 'bg-emerald-500/80 hover:bg-emerald-400' 
-                  : 'bg-rose-500/80 hover:bg-rose-400';
-                const statusLabel = tick.status === 'UP' ? 'Operational' : 'Outage Detected';
-                
-                return (
-                  <div
-                    key={tick.id}
-                    className={`flex-1 h-8 ${color} rounded-full transition-all duration-200 cursor-help relative group/bar`}
-                  >
-                    {/* Tooltip on bar hover */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/bar:flex flex-col items-center bg-zinc-950 border border-white/10 p-2 rounded-lg text-[10px] text-white whitespace-nowrap shadow-xl z-20">
-                      <span className="font-semibold text-zinc-300">{statusLabel}</span>
-                      <span className="text-zinc-500">
-                        {tick.responseTimeMs ? `${tick.responseTimeMs}ms` : 'No response'}
-                      </span>
-                      <span className="text-[8px] text-zinc-600">
-                        {new Date(tick.checkedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
+              return (
+                <div key={regionName} className="space-y-2">
+                  <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{regionName}</div>
+                  <div className="flex items-center gap-[4px] w-full justify-between p-3 bg-[#121214] rounded-xl border border-white/5 shadow-sm min-h-[56px]">
+                    {Array.from({ length: emptyBlockCount }).map((_, i) => (
+                      <div 
+                        key={`empty-${i}`} 
+                        className="flex-1 h-7 bg-[#27272a] rounded-full border border-white/10"
+                        title="No telemetry recorded"
+                      />
+                    ))}
+
+                    {last30Ticks.map((tick) => {
+                      const color = tick.status === 'UP' 
+                        ? 'bg-[#10b981] hover:bg-[#059669]' 
+                        : 'bg-rose-500/80 hover:bg-rose-400';
+                      const statusLabel = tick.status === 'UP' ? 'Operational' : 'Outage Detected';
+                      
+                      return (
+                        <div
+                          key={tick.id}
+                          className={`flex-1 h-7 ${color} rounded-full transition-all duration-200 cursor-help relative group/bar`}
+                        >
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/bar:flex flex-col items-center bg-zinc-950 border border-white/10 p-2 rounded-lg text-[10px] text-white whitespace-nowrap shadow-xl z-20">
+                            <span className="font-semibold text-zinc-500">{statusLabel}</span>
+                            <span className="text-zinc-400">
+                              {tick.responseTimeMs ? `${tick.responseTimeMs}ms` : 'No response'}
+                            </span>
+                            <span className="text-[10px] text-sky-500 font-medium mt-0.5 truncate max-w-[100px]">
+                              {tick.region?.name || 'Unknown Region'}
+                            </span>
+                            <span className="text-[8px] text-zinc-500 mt-1">
+                              {new Date(tick.checkedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-zinc-500 px-1">
+                </div>
+              );
+            })}
+            
+            <div className="flex items-center justify-between text-xs text-zinc-400 px-1 mt-2">
               <span>30 checks ago</span>
               <span>100% operational target</span>
               <span>Latest check</span>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-white/5 flex flex-wrap gap-4 text-xs text-zinc-400">
+          <div className="pt-2 border-t border-white/10 flex flex-wrap gap-4 text-xs text-zinc-400">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
               <span>UP</span>
@@ -615,17 +692,17 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
               <span>DOWN</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-white/5" />
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-800 border border-white/10" />
               <span>UNKNOWN</span>
             </div>
           </div>
         </div>
 
         {/* Right: Incidents Log */}
-        <div className="p-6 bg-zinc-900/35 border border-white/10 rounded-3xl backdrop-blur-xl animate-panel flex flex-col justify-between space-y-6">
+        <div className="p-6 bg-[#121214] border border-white/5 rounded-[24px] shadow-sm  animate-panel flex flex-col justify-between space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-white mb-0.5">Incident Logs</h2>
-            <p className="text-zinc-500 text-xs">Recent service outages and resolution timelines.</p>
+            <p className="text-zinc-400 text-xs">Recent service outages and resolution timelines.</p>
           </div>
 
           <div className="flex-1 overflow-y-auto max-h-[160px] space-y-3 custom-scrollbar pr-1">
@@ -633,7 +710,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
               <div className="h-full flex flex-col items-center justify-center py-6 text-center">
                 <CheckCircle2 className="w-8 h-8 text-emerald-500/60 mb-2" />
                 <span className="text-xs text-zinc-400 font-medium">All Systems Operational</span>
-                <span className="text-[10px] text-zinc-500 mt-0.5">No outages detected recently.</span>
+                <span className="text-[10px] text-zinc-400 mt-0.5">No outages detected recently.</span>
               </div>
             ) : (
               incidents.map((incident) => {
@@ -643,8 +720,8 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                     key={incident.id}
                     className={`p-3 rounded-xl border flex gap-3 ${
                       isActive 
-                        ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
-                        : 'bg-black/25 border-white/5 text-zinc-300'
+                        ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' 
+                        : 'bg-black/25 border-white/10 text-zinc-500'
                     }`}
                   >
                     <div className="mt-0.5">
@@ -658,7 +735,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                     <div className="flex-1 min-w-0 text-xs space-y-1">
                       <div className="flex items-center justify-between gap-2 font-medium">
                         <span className="truncate">{isActive ? 'Ongoing Outage' : 'Outage Resolved'}</span>
-                        <span className="text-[10px] text-zinc-500 font-normal">
+                        <span className="text-[10px] text-zinc-400 font-normal">
                           {isActive 
                             ? 'Started' 
                             : incident.durationSeconds 
@@ -667,11 +744,11 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                         </span>
                       </div>
                       
-                      <p className={`text-[11px] truncate ${isActive ? 'text-rose-300' : 'text-zinc-500'}`}>
+                      <p className={`text-[11px] truncate ${isActive ? 'text-rose-300' : 'text-zinc-400'}`}>
                         {incident.reason || 'Service became unresponsive.'}
                       </p>
                       
-                      <div className="text-[9px] text-zinc-500 flex items-center gap-1">
+                      <div className="text-[9px] text-zinc-400 flex items-center gap-1">
                         <Calendar className="w-2.5 h-2.5" />
                         <span>{new Date(incident.startedAt).toLocaleString()}</span>
                       </div>
@@ -687,8 +764,8 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
 
       {/* Glassmorphic Delete Confirmation Modal */}
       {isDeleteOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
-          <div className="w-full max-w-md p-6 bg-zinc-950/80 border border-white/10 rounded-3xl shadow-2xl backdrop-blur-xl space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 ">
+          <div className="w-full max-w-md p-6 bg-[#121214] border border-white/5 rounded-3xl shadow-xl shadow-2xl  space-y-6">
             <div className="flex items-start gap-4">
               <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500">
                 <AlertTriangle className="w-6 h-6 animate-pulse" />
@@ -705,7 +782,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
               <button
                 onClick={() => setIsDeleteOpen(false)}
                 disabled={isDeleting}
-                className="px-4 py-2.5 rounded-xl border border-white/5 hover:border-white/10 text-zinc-300 text-sm font-medium transition-colors disabled:opacity-55"
+                className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-white/10 text-zinc-500 text-sm font-medium transition-colors disabled:opacity-55"
               >
                 Cancel
               </button>

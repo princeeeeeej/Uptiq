@@ -265,8 +265,8 @@ export default function Features() {
             </div>
 
             <div className="relative z-10 mt-auto pointer-events-none">
-              <div className="w-12 h-12 rounded-2xl border border-white/10 bg-white/[0.05] flex items-center justify-center mb-6">
-                <Globe2 className="w-6 h-6 text-violet-400" />
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6">
+                <Globe2 className="w-6 h-6 text-emerald-400" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">Multi-region consensus</h3>
               <p className="text-zinc-400 max-w-sm">We verify downtime from multiple global regions before sending an alert, eliminating false positives.</p>
@@ -334,11 +334,11 @@ export default function Features() {
             className="feat-card md:col-span-2 group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 transition-all flex flex-col justify-between min-h-[360px] cursor-default"
             style={{ transformStyle: 'preserve-3d' }}
           >
-            <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(217,70,239,0.1),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(168,85,247,0.06),transparent_50%)] pointer-events-none" />
+            <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(52,211,153,0.1),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(52,211,153,0.06),transparent_50%)] pointer-events-none" />
             
             <div 
-              className="absolute top-8 right-8 w-64 border border-white/5 bg-white/[0.02] rounded-2xl p-5 group-hover:scale-105 group-hover:-translate-x-2 group-hover:rotate-2 transition-transform duration-700 shadow-xl group-hover:shadow-[0_0_30px_rgba(217,70,239,0.15)]"
+              className="absolute top-8 right-8 w-64 border border-white/5 bg-white/[0.02] rounded-2xl p-5 group-hover:scale-105 group-hover:-translate-x-2 group-hover:rotate-2 transition-transform duration-700 shadow-xl group-hover:shadow-[0_0_30px_rgba(52,211,153,0.15)]"
               style={{ transform: 'translateZ(30px)' }}
             >
               <div className="relative pl-4 border-l border-white/10 space-y-4">
@@ -356,8 +356,8 @@ export default function Features() {
             </div>
 
             <div className="relative z-10 mt-auto pointer-events-none">
-              <div className="w-12 h-12 rounded-2xl border border-white/10 bg-white/[0.05] flex items-center justify-center mb-6">
-                <Activity className="w-6 h-6 text-fuchsia-400" />
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6">
+                <Activity className="w-6 h-6 text-emerald-400" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">Incident Timeline</h3>
               <p className="text-zinc-400 max-w-sm">Full outage history with duration, resolution tracking, and root cause analysis tools.</p>

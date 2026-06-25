@@ -74,9 +74,10 @@ export default function InteractiveGrid() {
             ox = -(dx / dist) * force * 12;
             oy = -(dy / dist) * force * 12;
 
-            // Glow color mixing sky-blue / violet based on coordinate
+            // Glow color mixing sky-blue / green based on coordinate
+            // We use Emerald-ish RGB: 16, 185, 129
             const glowRatio = force;
-            dotColor = `rgba(167, 139, 250, ${0.08 + glowRatio * 0.4})`; // glowing purple
+            dotColor = `rgba(16, 185, 129, ${0.08 + glowRatio * 0.4})`; // glowing emerald
             dotRadius = 1.0 + force * 2.0;
 
             // Draw a subtle connecting glow line to mouse

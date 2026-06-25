@@ -11,7 +11,7 @@ export default function CTA() {
       <div className="max-w-5xl mx-auto relative group">
         
         {/* Glow behind the glass */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/0 via-violet-500/10 to-sky-500/0 rounded-[40px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-sky-500/0 rounded-[40px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         
         {/* Glass Edge Container */}
         <div className="relative rounded-[40px] border border-white/5 bg-zinc-950/40 backdrop-blur-3xl overflow-hidden p-16 md:p-24 text-center">

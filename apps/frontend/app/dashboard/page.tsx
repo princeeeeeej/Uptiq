@@ -40,29 +40,49 @@ export default function DashboardPage() {
   }, [fetchWebsites]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-white mb-2">Monitors Overview</h1>
-          <p className="text-zinc-400">Manage and track your infrastructure in real-time.</p>
+    <div className="max-w-6xl w-full mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Top Metric Cards based on mockup */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-[#121214] rounded-[24px] p-6 shadow-lg shadow-black/20 border border-white/5 flex items-center justify-between">
+          <div>
+            <p className="text-zinc-400 text-sm mb-1">Active Monitors</p>
+            <h2 className="text-3xl font-bold text-white">{websites.length}</h2>
+          </div>
+          <div className="w-12 h-12 rounded-full bg-[#18181b] flex items-center justify-center">
+            <LayoutGrid className="w-5 h-5 text-zinc-400" />
+          </div>
         </div>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="group/btn relative flex items-center gap-2 px-5 py-2.5 bg-white text-black font-medium rounded-xl hover:scale-[1.02] transition-transform shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-        >
-          <span className="relative z-10">Add Monitor</span>
-          <Plus className="w-4 h-4 relative z-10 group-hover/btn:rotate-90 transition-transform" />
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-200 to-sky-200 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-        </button>
+        
+        <div className="bg-[#121214] rounded-[24px] p-6 shadow-lg shadow-black/20 border border-white/5 flex items-center justify-between">
+          <div>
+            <p className="text-zinc-400 text-sm mb-1">Global Regions</p>
+            <h2 className="text-3xl font-bold text-white">2</h2>
+          </div>
+          <div className="w-12 h-12 rounded-full bg-[#18181b] flex items-center justify-center">
+            <div className="flex gap-1">
+              <span className="w-2 h-2 rounded-full bg-sky-500" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-[#10b981] rounded-[24px] p-6 shadow-[0_8px_30px_-4px_rgba(107,142,123,0.3)] flex flex-col justify-between text-white">
+          <p className="text-white/80 text-sm">System Status</p>
+          <div className="flex items-center justify-between mt-1">
+            <h2 className="text-3xl font-bold">100%</h2>
+            <div className="px-3 py-1 bg-[#121214]/20 rounded-full text-xs font-medium">
+              Operational
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center gap-3">
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center gap-3">
           <AlertCircle className="w-5 h-5" />
           <p>{error}</p>
-          <button onClick={fetchWebsites} className="ml-auto underline text-sm hover:text-rose-300">Retry</button>
+          <button onClick={fetchWebsites} className="ml-auto underline text-sm hover:text-rose-400">Retry</button>
         </div>
       )}
 
@@ -70,13 +90,13 @@ export default function DashboardPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-48 bg-zinc-900/50 rounded-[24px] border border-white/5 animate-pulse" />
+            <div key={i} className="h-48 bg-[#121214] rounded-[24px] border border-white/5 shadow-sm animate-pulse" />
           ))}
         </div>
       ) : websites.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-32 px-4 border border-white/10 border-dashed rounded-[32px] bg-zinc-900/20">
-          <div className="w-16 h-16 rounded-2xl bg-zinc-900/50 border border-white/5 flex items-center justify-center mb-6">
-            <LayoutGrid className="w-8 h-8 text-zinc-500" />
+        <div className="flex flex-col items-center justify-center py-32 px-4 border border-white/10 border-dashed rounded-[32px] bg-[#121214]/50">
+          <div className="w-16 h-16 rounded-2xl bg-[#18181b] border border-white/5 flex items-center justify-center mb-6 shadow-sm">
+            <LayoutGrid className="w-8 h-8 text-zinc-400" />
           </div>
           <h3 className="text-xl font-medium text-white mb-2">No monitors configured</h3>
           <p className="text-zinc-400 text-center max-w-md mb-8">
@@ -84,7 +104,7 @@ export default function DashboardPage() {
           </p>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-colors"
+            className="px-6 py-3 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-semibold transition-colors shadow-md"
           >
             Add your first monitor
           </button>
@@ -94,6 +114,17 @@ export default function DashboardPage() {
           {websites.map(website => (
             <WebsiteCard key={website.id} website={website} />
           ))}
+          
+          {/* Add New Monitor Card */}
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="group flex flex-col items-center justify-center h-full min-h-[220px] bg-[#121214] border border-white/10 border-dashed rounded-[24px] hover:border-[#6B8E7B] hover:bg-[#10b981]/5 transition-all cursor-pointer"
+          >
+            <div className="w-12 h-12 rounded-full bg-[#18181b] border border-white/5 flex items-center justify-center mb-4 group-hover:bg-zinc-100 group-hover:text-zinc-950 group-hover:text-white transition-colors text-zinc-400">
+              <Plus className="w-6 h-6" />
+            </div>
+            <span className="font-medium text-white group-hover:text-white transition-colors">Add New Monitor</span>
+          </button>
         </div>
       )}
 

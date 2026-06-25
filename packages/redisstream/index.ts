@@ -22,6 +22,17 @@ export type StreamMessage<T = Record<string, string>> = {
   message: T;
 };
 
+export type DBWriteEvent = {
+  websiteId: string;
+  regionId: string;
+  url: string;
+  status: 'UP' | 'DOWN';
+  statusCode: string;
+  responseTimeMs: string;
+  errorMessage: string;
+  checkedAt: string;
+};
+
 export async function xAdd(
   stream: string,
   data: Record<string, string>,

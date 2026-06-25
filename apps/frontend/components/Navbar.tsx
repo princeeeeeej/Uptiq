@@ -105,8 +105,8 @@ export default function Navbar({ scrolled }: NavbarProps) {
           {user ? (
             <div className="flex items-center gap-4">
               <div className="hidden md:flex items-center gap-2 text-sm text-zinc-400">
-                <div className="w-6 h-6 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
-                  <UserIcon className="w-3 h-3 text-violet-300" />
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                  <UserIcon className="w-3 h-3 text-emerald-300" />
                 </div>
                 {user.username}
               </div>
