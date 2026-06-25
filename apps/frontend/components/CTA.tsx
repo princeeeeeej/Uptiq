@@ -2,6 +2,8 @@
 
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import Magnetic from '@/ui/Magnetic';
+import TextRevealer from '@/ui/TextRevealer';
 
 export default function CTA() {
   return (
@@ -36,37 +38,47 @@ export default function CTA() {
               text-white
               "
             >
-              Never miss
-              <br />
-              <span className="text-zinc-500">another outage.</span>
+              <span className="block h-[1.15em] overflow-hidden">
+                <TextRevealer text="Never miss" type="words" />
+              </span>
+              <span className="block h-[1.15em] overflow-hidden text-zinc-500">
+                <TextRevealer text="another outage." type="words" delay={0.2} />
+              </span>
             </h2>
 
             <p className="text-zinc-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-light leading-relaxed">
               Join thousands of engineering teams who sleep better at night. Start monitoring your infrastructure in less than 2 minutes.
             </p>
 
-            <Link
-              href="/signup"
-              className="
-              group/btn
-              relative
-              inline-flex
-              items-center
-              gap-3
-              px-10
-              py-5
-              rounded-full
-              bg-white
-              text-black
-              font-medium
-              transition-all
-              duration-500
-              hover:shadow-[0_0_40px_rgba(255,255,255,0.15)]
-              "
-            >
-              <span className="relative z-10">Start Monitoring Now</span>
-              <ArrowRight className="w-5 h-5 relative z-10 group-hover/btn:translate-x-1 transition-transform" />
-            </Link>
+            <Magnetic range={60} strength={0.2}>
+              <Link
+                href="/signup"
+                className="
+                group/btn
+                relative
+                inline-flex
+                items-center
+                gap-3
+                px-6
+                py-3.5
+                sm:px-10
+                sm:py-5
+                rounded-full
+                bg-white
+                text-black
+                font-medium
+                text-sm
+                sm:text-base
+                transition-all
+                duration-500
+                hover:shadow-[0_0_40px_rgba(255,255,255,0.15)]
+                cursor-pointer
+                "
+              >
+                <span className="relative z-10">Start Monitoring Now</span>
+                <ArrowRight className="w-5 h-5 relative z-10 group-hover/btn:translate-x-1 transition-transform" />
+              </Link>
+            </Magnetic>
             
             <div className="mt-8 text-xs font-mono tracking-wider text-zinc-600 uppercase">
               No credit card required · 14-day free trial

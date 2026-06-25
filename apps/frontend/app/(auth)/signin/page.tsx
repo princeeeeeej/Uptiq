@@ -35,8 +35,8 @@ export default function SignInPage() {
       // Save token (e.g. to localStorage)
       localStorage.setItem('token', data.jwt);
 
-      // Redirect to dashboard or home
-      router.push('/');
+      // Redirect to dashboard
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message);
     } finally {

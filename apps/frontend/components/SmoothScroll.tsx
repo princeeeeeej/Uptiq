@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -8,7 +9,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   useEffect(() => {
+    // Disable smooth scroll on dashboard to prevent scroll hijacking and scroll locking
+    if (pathname?.startsWith('/dashboard')) {
+      return;
+    }
+
     const lenis = new Lenis();
 
     lenis.on('scroll', ScrollTrigger.update);
@@ -25,7 +33,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       });
       lenis.destroy();
     };
-  }, []);
+  }, [pathname]);
 
   return <>{children}</>;
 }

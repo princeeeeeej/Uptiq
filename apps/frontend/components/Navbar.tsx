@@ -3,6 +3,7 @@
 import { Activity, LogOut, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import Magnetic from '@/ui/Magnetic';
 
 interface NavbarProps {
   scrolled: boolean;
@@ -49,48 +50,53 @@ export default function Navbar({ scrolled }: NavbarProps) {
     >
       <div className="max-w-[1280px] mx-auto w-full px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          <div
-            className="
-            h-8 w-8
-            rounded-xl
-            border
-            border-white/10
-            bg-white/[0.04]
-            flex
-            items-center
-            justify-center
-            "
-          >
-            <Activity className="w-4 h-4 text-zinc-100" />
-          </div>
-
-          <span
-            className="
-            text-lg
-            font-semibold
-            tracking-tight
-            "
-          >
-            UPTIQ
-          </span>
-        </Link>
-
-        {/* Links */}
-        <div className="hidden md:flex items-center gap-10">
-          {['Features', 'Architecture', 'Pricing', 'Changelog'].map((item) => (
-            <a
-              key={item}
-              href="#"
+        <Magnetic range={40} strength={0.25}>
+          <Link href="/" className="flex items-center gap-3">
+            <div
               className="
-              text-sm
-              text-zinc-500
-              hover:text-white
-              transition-colors
+              h-8 w-8
+              rounded-xl
+              border
+              border-white/10
+              bg-white/[0.04]
+              flex
+              items-center
+              justify-center
               "
             >
-              {item}
-            </a>
+              <Activity className="w-4 h-4 text-zinc-100" />
+            </div>
+
+            <span
+              className="
+              text-lg
+              font-semibold
+              tracking-tight
+              "
+            >
+              UPTIQ
+            </span>
+          </Link>
+        </Magnetic>
+
+        {/* Links */}
+        <div className="hidden md:flex items-center gap-8">
+          {['Features', 'Architecture', 'Pricing', 'Changelog'].map((item) => (
+            <Magnetic key={item} range={30} strength={0.35}>
+              <a
+                href={`#${item.toLowerCase()}`}
+                className="
+                text-sm
+                text-zinc-500
+                hover:text-white
+                transition-colors
+                py-2
+                px-1
+                "
+              >
+                {item}
+              </a>
+            </Magnetic>
           ))}
         </div>
 
@@ -104,61 +110,71 @@ export default function Navbar({ scrolled }: NavbarProps) {
                 </div>
                 {user.username}
               </div>
-              <button
-                onClick={handleSignOut}
-                className="text-zinc-500 hover:text-rose-400 transition-colors p-2"
-                title="Sign out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-              <Link
-                href="/dashboard"
-                className="
-                px-5
-                py-2.5
-                rounded-xl
-                bg-white
-                text-black
-                text-sm
-                font-medium
-                hover:bg-zinc-200
-                transition
-                "
-              >
-                Dashboard
-              </Link>
+              <Magnetic range={25} strength={0.3}>
+                <button
+                  onClick={handleSignOut}
+                  className="text-zinc-500 hover:text-rose-400 transition-colors p-2 cursor-pointer"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </Magnetic>
+              <Magnetic range={40} strength={0.2}>
+                <Link
+                  href="/dashboard"
+                  className="
+                  px-5
+                  py-2.5
+                  rounded-xl
+                  bg-white
+                  text-black
+                  text-sm
+                  font-medium
+                  hover:bg-zinc-200
+                  transition
+                  "
+                >
+                  Dashboard
+                </Link>
+              </Magnetic>
             </div>
           ) : (
             <>
-              <Link
-                href="/signin"
-                className="
-                hidden
-                md:block
-                text-sm
-                text-zinc-500
-                hover:text-white
-                "
-              >
-                Sign In
-              </Link>
+              <Magnetic range={30} strength={0.3}>
+                <Link
+                  href="/signin"
+                  className="
+                  hidden
+                  md:block
+                  text-sm
+                  text-zinc-500
+                  hover:text-white
+                  px-3
+                  py-2
+                  "
+                >
+                  Sign In
+                </Link>
+              </Magnetic>
 
-              <Link
-                href="/signup"
-                className="
-                px-5
-                py-2.5
-                rounded-xl
-                bg-white
-                text-black
-                text-sm
-                font-medium
-                hover:bg-zinc-200
-                transition
-                "
-              >
-                Start Free
-              </Link>
+              <Magnetic range={40} strength={0.2}>
+                <Link
+                  href="/signup"
+                  className="
+                  px-5
+                  py-2.5
+                  rounded-xl
+                  bg-white
+                  text-black
+                  text-sm
+                  font-medium
+                  hover:bg-zinc-200
+                  transition
+                  "
+                >
+                  Start Free
+                </Link>
+              </Magnetic>
             </>
           )}
         </div>

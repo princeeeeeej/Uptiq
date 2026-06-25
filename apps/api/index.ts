@@ -221,6 +221,70 @@ app.get('/website/:websiteId', authMiddleware, async (req, res) => {
   }
 });
 
+app.get('/website/:websiteId/ticks', authMiddleware, async (req, res) => {
+  const websiteId = req.params.websiteId as string;
+  try {
+    const website = await prismaclient.website.findFirst({
+      where: {
+        id: websiteId,
+        userId: req.userId!,
+      },
+    });
+
+    if (!website) {
+      return res.status(404).json({
+        message: 'Website not found',
+      });
+    }
+
+    const ticks = await prismaclient.websiteTick.findMany({
+      where: { websiteId },
+      orderBy: { checkedAt: 'desc' },
+      take: 50,
+    });
+
+    res.json({
+      ticks: ticks.reverse(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: String(error),
+    });
+  }
+});
+
+app.get('/website/:websiteId/incidents', authMiddleware, async (req, res) => {
+  const websiteId = req.params.websiteId as string;
+  try {
+    const website = await prismaclient.website.findFirst({
+      where: {
+        id: websiteId,
+        userId: req.userId!,
+      },
+    });
+
+    if (!website) {
+      return res.status(404).json({
+        message: 'Website not found',
+      });
+    }
+
+    const incidents = await prismaclient.incident.findMany({
+      where: { websiteId },
+      orderBy: { startedAt: 'desc' },
+      take: 20,
+    });
+
+    res.json({
+      incidents,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: String(error),
+    });
+  }
+});
+
 app.delete('/website/:websiteId', authMiddleware, async (req, res) => {
   const websiteId = req.params.websiteId as string;
 

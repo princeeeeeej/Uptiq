@@ -1,14 +1,89 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { ArrowRight, Check, ChevronRight, Activity, Server, Network, Terminal, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import MeshGradient from '../ui/MeshGradient';
 import FloatCard from '../ui/FloatCard';
+import Magnetic from '@/ui/Magnetic';
+import TextRevealer from '@/ui/TextRevealer';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Hero() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const ctx = gsap.context(() => {
+      // Entry transitions
+      gsap.fromTo(
+        el.querySelector('.hero-badge'),
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+      );
+
+      gsap.fromTo(
+        el.querySelector('.hero-sub'),
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.2, ease: 'power2.out' }
+      );
+
+      gsap.fromTo(
+        el.querySelector('.hero-ctas'),
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.3, ease: 'power2.out' }
+      );
+
+      gsap.fromTo(
+        el.querySelector('.hero-mockup-container'),
+        { opacity: 0, y: 40, scale: 0.97 },
+        { opacity: 1, y: 0, scale: 1, duration: 1, delay: 0.4, ease: 'power3.out' }
+      );
+
+      // Scrub parallax scroll interactions
+      const mockup = el.querySelector('.hero-mockup');
+      const mockContainer = el.querySelector('.hero-mockup-container');
+      if (mockup && mockContainer) {
+        gsap.to(mockup, {
+          y: 150,
+          scale: 0.85,
+          opacity: 0.2,
+          rotateX: 10,
+          scrollTrigger: {
+            trigger: mockContainer,
+            start: 'top 40%',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+
+      const heroBg = el.querySelector('.hero-bg');
+      if (heroBg) {
+        gsap.to(heroBg, {
+          y: 300,
+          scrollTrigger: {
+            trigger: el,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section
+      ref={containerRef}
       className="
       relative
       min-h-screen
@@ -95,12 +170,14 @@ export default function Hero() {
 
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="relative w-[900px] h-[900px]">
-            {[1, 2, 3, 4].map((i) => (
+            {[3, 4].map((i) => (
               <div
                 key={i}
                 className="absolute rounded-full border border-white/5"
                 style={{
                   inset: `${i * 60}px`,
+                  borderStyle: i % 2 === 0 ? 'dashed' : 'solid',
+                  animation: `spin ${i * 45}s linear infinite${i % 2 === 0 ? '' : ' reverse'}`,
                 }}
               />
             ))}
@@ -117,8 +194,8 @@ export default function Hero() {
           leading-none
           "
         >
-          <span className="line block text-[4rem] md:text-[7rem]">
-            Precision Monitoring
+          <span className="line block text-[4rem] md:text-[7rem] h-[1.1em] overflow-hidden">
+            <TextRevealer text="Precision Monitoring" type="words" triggerOnScroll={false} delay={0.15} />
           </span>
 
           <span
@@ -128,9 +205,11 @@ export default function Hero() {
             text-[4rem]
             md:text-[7rem]
             text-zinc-500
+            h-[1.1em]
+            overflow-hidden
             "
           >
-            For Production Systems
+            <TextRevealer text="For Production Systems" type="words" triggerOnScroll={false} delay={0.35} />
           </span>
         </h1>
 
@@ -160,36 +239,52 @@ export default function Hero() {
           mt-10
           "
         >
-          <Link
-            href="/signup"
-            className="
-            flex
-            items-center
-            gap-2
-            px-8
-            py-4
-            rounded-2xl
-            bg-white
-            text-black
-            font-medium
-            "
-          >
-            Start Monitoring
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <Magnetic range={50} strength={0.25}>
+            <Link
+              href="/signup"
+              className="
+              flex
+              items-center
+              gap-2
+              px-5
+              py-3
+              sm:px-8
+              sm:py-4
+              rounded-xl
+              sm:rounded-2xl
+              bg-white
+              text-black
+              font-medium
+              cursor-pointer
+              text-sm
+              sm:text-base
+              "
+            >
+              Start Monitoring
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </Magnetic>
 
-          <button
-            className="
-            px-8
-            py-4
-            rounded-2xl
-            border
-            border-white/10
-            bg-white/[0.03]
-            "
-          >
-            View Architecture
-          </button>
+          <Magnetic range={50} strength={0.3}>
+            <button
+              className="
+              px-5
+              py-3
+              sm:px-8
+              sm:py-4
+              rounded-xl
+              sm:rounded-2xl
+              border
+              border-white/10
+              bg-white/[0.03]
+              cursor-pointer
+              text-sm
+              sm:text-base
+              "
+            >
+              View Architecture
+            </button>
+          </Magnetic>
         </div>
 
         {/* Dashboard Mockup Container */}
@@ -205,23 +300,49 @@ export default function Hero() {
             backdrop-blur-2xl
             shadow-[0_0_80px_rgba(139,92,246,0.15)]
             flex
+            flex-col
             "
           >
-            {/* Sidebar */}
-            <div className="w-16 md:w-64 border-r border-white/5 bg-white/[0.01] p-4 flex flex-col gap-2">
-              <div className="hidden md:block text-xs font-mono text-zinc-500 mb-4 px-2 uppercase tracking-wider">Metrics</div>
-              {[
-                { icon: Activity, label: 'Overview', active: true },
-                { icon: Network, label: 'Endpoints', active: false },
-                { icon: Server, label: 'Infrastructure', active: false },
-                { icon: ShieldAlert, label: 'Incidents', active: false },
-                { icon: Terminal, label: 'Logs', active: false },
-              ].map((item) => (
-                <div key={item.label} className={`flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors ${item.active ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}>
-                  <item.icon className="w-4 h-4" />
-                  <span className="hidden md:block text-sm font-medium">{item.label}</span>
+            {/* Mockup Header/Top Navbar */}
+            <div className="h-14 border-b border-white/5 bg-white/[0.01] px-4 md:px-6 flex items-center justify-between select-none">
+              <div className="flex items-center gap-6">
+                {/* Logo */}
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-lg border border-white/10 bg-white/[0.04] flex items-center justify-center">
+                    <Activity className="w-3 h-3 text-white" />
+                  </div>
+                  <span className="font-semibold tracking-tight text-sm text-white">UPTIQ</span>
                 </div>
-              ))}
+                {/* Navigation */}
+                <div className="flex items-center gap-1">
+                  {[
+                    { name: 'Overview', active: true },
+                    { name: 'Incidents', active: false },
+                    { name: 'Settings', active: false },
+                  ].map((item) => (
+                    <div
+                      key={item.name}
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                        item.active
+                          ? 'bg-white/10 text-white'
+                          : 'text-zinc-500 hover:text-zinc-300'
+                      }`}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* User Actions */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                  <div className="w-5 h-5 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
+                    <span className="text-[8px] font-bold text-violet-300">DU</span>
+                  </div>
+                  <span className="hidden sm:inline">demo_user</span>
+                </div>
+                <div className="text-zinc-500 hover:text-rose-400 text-xs font-medium transition-colors">Sign Out</div>
+              </div>
             </div>
 
             {/* Main Content */}
