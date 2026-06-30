@@ -1,0 +1,10 @@
+node_modules
+.git
+.turbo
+apps/*/node_modules
+apps/*/.next
+packages/*/node_modules
+packages/*/dist
+npm-debug.log
+yarn-error.log
+.env

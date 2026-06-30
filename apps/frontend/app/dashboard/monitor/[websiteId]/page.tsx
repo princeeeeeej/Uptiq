@@ -290,7 +290,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
   }[details.currentStatus];
 
   return (
-    <div ref={pageContainerRef} className="max-w-6xl mx-auto space-y-6 pb-20">
+    <div ref={pageContainerRef} className="max-w-6xl mx-auto space-y-6 pt-8 pb-20">
 
       {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-panel">

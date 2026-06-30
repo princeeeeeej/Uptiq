@@ -96,7 +96,7 @@ export default function SettingsPage() {
         </div>
       </header>
 
-      <div className="max-w-4xl w-full">
+      <div className="max-w-4xl w-full mx-auto">
         <div className="bg-[#121214] border border-white/5 rounded-[24px] p-8 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">

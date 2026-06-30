@@ -1,0 +1,16 @@
+FROM oven/bun:alpine
+
+WORKDIR /usr/src/app
+
+COPY ./package.json ./package.json
+
+RUN bun install
+
+COPY ./packages ./packages
+COPY ./apps/worker ./apps/worker
+
+RUN bun install
+
+RUN bunx prisma@6.19.3 generate --schema=./packages/store/prisma/schema.prisma
+
+CMD [ "bun", "run", "apps/worker/index.ts" ]

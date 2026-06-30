@@ -302,6 +302,17 @@ async function processBatch() {
 async function main() {
   console.log(`DB Writer ${WORKER_ID} starting in region ${REGION_ID}`);
 
+  try {
+    await prismaclient.region.upsert({
+      where: { code: REGION_ID },
+      create: { id: REGION_ID, code: REGION_ID, name: REGION_ID },
+      update: {}
+    });
+    console.log(`Region ${REGION_ID} verified in DB`);
+  } catch (err) {
+    console.error(`Failed to verify region ${REGION_ID}:`, err);
+  }
+
   await xCreateGroup(DB_WRITE_STREAM, REGION_ID);
 
   setInterval(() => {

@@ -1,0 +1,21 @@
+FROM oven/bun:alpine
+
+WORKDIR /usr/src/app
+
+COPY ./package.json ./package.json
+
+RUN bun install
+
+COPY ./packages ./packages
+COPY ./apps/frontend ./apps/frontend
+
+RUN bun install
+
+ARG NEXT_PUBLIC_BACKEND_URL
+
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+
+EXPOSE 3000
+
+RUN sh -c "cd apps/frontend && bun run build"
+CMD ["sh", "-c", "cd apps/frontend && bun run start"]
