@@ -39,22 +39,19 @@ export default function InteractiveGrid() {
     window.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseleave', handleMouseLeave);
 
-    // Particle/Dot class
-    const gap = 50; // Grid cell size
-    const hoverRadius = 150; // Influence circle size
+    const gap = 50; 
+    const hoverRadius = 150; 
 
     const drawGrid = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // We align the grid offsets relative to the window scroll to prevent layout sliding
       const scrollY = window.scrollY;
       const startX = 0;
       const startY = -(scrollY % gap);
 
-      // Draw subtle dot grid
       for (let x = startX; x < width + gap; x += gap) {
         for (let y = startY; y < height + gap; y += gap) {
-          // Calculate grid node coordinates in screen space
+
           const px = x;
           const py = y;
 
@@ -69,18 +66,14 @@ export default function InteractiveGrid() {
 
           if (mouseRef.current.active && dist < hoverRadius) {
             const force = (hoverRadius - dist) / hoverRadius;
-            
-            // Push dots away slightly from the mouse (displacement)
+
             ox = -(dx / dist) * force * 12;
             oy = -(dy / dist) * force * 12;
 
-            // Glow color mixing sky-blue / green based on coordinate
-            // We use Emerald-ish RGB: 16, 185, 129
             const glowRatio = force;
-            dotColor = `rgba(16, 185, 129, ${0.08 + glowRatio * 0.4})`; // glowing emerald
+            dotColor = `rgba(16, 185, 129, ${0.08 + glowRatio * 0.4})`; 
             dotRadius = 1.0 + force * 2.0;
 
-            // Draw a subtle connecting glow line to mouse
             if (dist < 80) {
               ctx.beginPath();
               ctx.moveTo(px + ox, py + oy);
@@ -91,18 +84,15 @@ export default function InteractiveGrid() {
             }
           }
 
-          // Render coordinate dot
           ctx.beginPath();
           ctx.arc(px + ox, py + oy, dotRadius, 0, Math.PI * 2);
           ctx.fillStyle = dotColor;
           ctx.fill();
 
-          // Render subtle sci-fi coordinate crosshairs in corners at larger intervals
           if ((x % (gap * 4) === 0) && (y % (gap * 4) === 0)) {
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
             ctx.lineWidth = 0.5;
-            
-            // Draw tiny cross
+
             ctx.beginPath();
             ctx.moveTo(px + ox - 4, py + oy);
             ctx.lineTo(px + ox + 4, py + oy);

@@ -73,7 +73,6 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
   const { websiteId } = use(params);
   const router = useRouter();
 
-  // State
   const [details, setDetails] = useState<WebsiteDetails | null>(null);
   const [ticks, setTicks] = useState<Tick[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -95,9 +94,9 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
   const fetchAllData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     else setRefreshing(true);
-    
+
     setError('');
-    
+
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -107,7 +106,6 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
 
       const headers = { Authorization: `Bearer ${token}` };
 
-      // 1. Details
       const resDetails = await fetch(`http://localhost:8080/website/${websiteId}`, { headers });
       if (!resDetails.ok) {
         if (resDetails.status === 404) throw new Error('Monitor not found');
@@ -116,14 +114,12 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
       const dataDetails = await resDetails.json();
       setDetails(dataDetails);
 
-      // 2. Ticks
       const resTicks = await fetch(`http://localhost:8080/website/${websiteId}/ticks`, { headers });
       if (resTicks.ok) {
         const dataTicks = await resTicks.json();
         setTicks(dataTicks.ticks || []);
       }
 
-      // 3. Incidents
       const resIncidents = await fetch(`http://localhost:8080/website/${websiteId}/incidents`, { headers });
       if (resIncidents.ok) {
         const dataIncidents = await resIncidents.json();
@@ -144,7 +140,6 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
     return () => clearInterval(interval);
   }, [fetchAllData]);
 
-  // Entrance Animations
   useEffect(() => {
     if (!loading && details) {
       gsap.fromTo(
@@ -162,7 +157,6 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
     }
   }, [loading, details]);
 
-  // Delete Action
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -181,7 +175,6 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
     }
   };
 
-  // Uptime Calculation
   const getUptimeStats = () => {
     if (ticks.length === 0) return { percent: 100, label: 'No check ticks' };
     const upTicks = ticks.filter(t => t.status === 'UP').length;
@@ -192,7 +185,6 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
     };
   };
 
-  // Response Time Averages
   const getResponseTimeStats = () => {
     const validTicks = ticks.filter(t => t.responseTimeMs !== null) as { responseTimeMs: number }[];
     if (validTicks.length === 0) return { avg: 0, min: 0, max: 0 };
@@ -207,23 +199,22 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
   const uptime = getUptimeStats();
   const latencyStats = getResponseTimeStats();
 
-  // Prepare chart data format for Recharts
   const groupedChartData = new Map();
   ticks.forEach(t => {
     const date = new Date(t.checkedAt);
-    date.setSeconds(0, 0); // Group by minute
+    date.setSeconds(0, 0); 
     const timeKey = date.getTime();
-    
+
     if (!groupedChartData.has(timeKey)) {
       groupedChartData.set(timeKey, {
         name: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         time: date.toISOString(),
       });
     }
-    
+
     const entry = groupedChartData.get(timeKey);
     const regionName = t.region?.name || 'Unknown';
-    // Only set if not already set, or just overwrite (since there should be 1 per region per minute)
+
     entry[regionName] = t.responseTimeMs ?? 0;
     entry[`${regionName}_status`] = t.status;
   });
@@ -233,18 +224,15 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
   const activeRegionsList = Array.from(new Set(ticks.map(t => t.region?.name).filter(Boolean))) as string[];
   const activeRegions = activeRegionsList.join(', ');
 
-  // Group ticks by region for the Uptime Grid
   const regionTicksMap = new Map<string, Tick[]>();
   activeRegionsList.forEach(r => regionTicksMap.set(r, []));
   if (activeRegionsList.length === 0) regionTicksMap.set('Unknown', []);
-  
+
   ticks.forEach(t => {
     const rName = t.region?.name || 'Unknown';
     if (!regionTicksMap.has(rName)) regionTicksMap.set(rName, []);
     regionTicksMap.get(rName)!.push(t);
   });
-
-
 
   if (loading) {
     return (
@@ -303,8 +291,8 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
 
   return (
     <div ref={pageContainerRef} className="max-w-6xl mx-auto space-y-6 pb-20">
-      
-      {/* Navigation & Actions Bar */}
+
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-panel">
         <div className="flex items-center gap-4">
           <Link 
@@ -315,7 +303,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight text-white">{details.name}</h1>
+              <h1 className="text-3xl font-semibold tracking-tight text-white">{details.name}</h1>
               <a 
                 href={details.url} 
                 target="_blank" 
@@ -328,7 +316,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
             <p className="text-zinc-400 text-sm tracking-wide mt-0.5">{details.url}</p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <button
             onClick={() => fetchAllData(true)}
@@ -338,7 +326,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           </button>
-          
+
           <button
             onClick={() => setIsDeleteOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 font-medium rounded-xl hover:bg-rose-500/20 hover:border-rose-500/30 transition-all duration-300"
@@ -349,7 +337,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
         </div>
       </div>
 
-      {/* Main Status Hero Banner */}
+      {}
       <div className="relative overflow-hidden bg-[#121214] border border-white/5 rounded-[24px] shadow-sm p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6  animate-panel">
         <div className="absolute inset-0 bg-gradient-to-r from-black/[0.01] to-transparent pointer-events-none" />
         <div className="flex items-center gap-5 relative z-10">
@@ -415,10 +403,10 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
         </div>
       </div>
 
-      {/* Stats Bento Grid */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {/* Stat: Uptime */}
+
+        {}
         <div className="p-6 bg-[#121214] border border-white/5 rounded-2xl shadow-sm flex flex-col justify-between  animate-panel">
           <div className="flex items-center justify-between text-zinc-400 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider">Uptime (Recent)</span>
@@ -432,7 +420,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
           </div>
         </div>
 
-        {/* Stat: Avg Latency */}
+        {}
         <div className="p-6 bg-[#121214] border border-white/5 rounded-2xl shadow-sm flex flex-col justify-between  animate-panel">
           <div className="flex items-center justify-between text-zinc-400 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider">Avg Latency</span>
@@ -448,7 +436,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
           </div>
         </div>
 
-        {/* Stat: SSL Cert Issuer */}
+        {}
         <div className="p-6 bg-[#121214] border border-white/5 rounded-2xl shadow-sm flex flex-col justify-between  animate-panel">
           <div className="flex items-center justify-between text-zinc-400 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider">SSL Certificate</span>
@@ -466,7 +454,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
           </div>
         </div>
 
-        {/* Stat: Outages / Incident Count */}
+        {}
         <div className="p-6 bg-[#121214] border border-white/5 rounded-2xl shadow-sm flex flex-col justify-between  animate-panel">
           <div className="flex items-center justify-between text-zinc-400 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Incidents</span>
@@ -486,14 +474,14 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
 
       </div>
 
-      {/* SVG Response Time Chart */}
+      {}
       <div className="p-6 bg-[#121214] border border-white/5 rounded-[24px] shadow-sm  animate-panel space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 className="text-lg font-semibold text-white mb-0.5">Response Time History</h2>
             <p className="text-zinc-400 text-xs">Performance patterns and latency checks over the last 50 queries.</p>
           </div>
-          
+
           {ticks.length > 0 && (
             <div className="flex items-center gap-4 text-xs">
               {activeRegionsList.map((region, idx) => {
@@ -561,7 +549,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                             <div className="text-[10px] text-zinc-400 font-mono mb-2 border-b border-white/10 pb-1">
                               {new Date(data.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </div>
-                            
+
                             {activeRegionsList.map((region, idx) => {
                               if (data[region] === undefined) return null;
                               const colorClass = idx % 2 === 0 ? "text-[#10b981]" : "text-sky-500";
@@ -600,13 +588,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                         strokeWidth={2}
                         fillOpacity={1}
                         fill={`url(#chartGradient-${idx})`}
-                        activeDot={{ 
-                          r: 4, 
-                          fill: '#ffffff', 
-                          stroke: hex, 
-                          strokeWidth: 2,
-                          className: "shadow-2xl" 
-                        }}
+                        activeDot={false}
                       />
                     );
                   })}
@@ -617,10 +599,10 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
         )}
       </div>
 
-      {/* Uptime Bar & Incident Log Column */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left: Uptime Bar Panel */}
+
+        {}
         <div className="lg:col-span-2 p-6 bg-[#121214] border border-white/5 rounded-[24px] shadow-sm  animate-panel flex flex-col justify-between space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-white mb-0.5">Uptime Status Grid</h2>
@@ -649,7 +631,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                         ? 'bg-[#10b981] hover:bg-[#059669]' 
                         : 'bg-rose-500/80 hover:bg-rose-400';
                       const statusLabel = tick.status === 'UP' ? 'Operational' : 'Outage Detected';
-                      
+
                       return (
                         <div
                           key={tick.id}
@@ -674,7 +656,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                 </div>
               );
             })}
-            
+
             <div className="flex items-center justify-between text-xs text-zinc-400 px-1 mt-2">
               <span>30 checks ago</span>
               <span>100% operational target</span>
@@ -698,14 +680,14 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
           </div>
         </div>
 
-        {/* Right: Incidents Log */}
+        {}
         <div className="p-6 bg-[#121214] border border-white/5 rounded-[24px] shadow-sm  animate-panel flex flex-col justify-between space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-white mb-0.5">Incident Logs</h2>
             <p className="text-zinc-400 text-xs">Recent service outages and resolution timelines.</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto max-h-[160px] space-y-3 custom-scrollbar pr-1">
+          <div className="flex-1 overflow-y-auto max-h-[160px] space-y-3 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pr-1">
             {incidents.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center py-6 text-center">
                 <CheckCircle2 className="w-8 h-8 text-emerald-500/60 mb-2" />
@@ -724,14 +706,6 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                         : 'bg-black/25 border-white/10 text-zinc-500'
                     }`}
                   >
-                    <div className="mt-0.5">
-                      {isActive ? (
-                        <div className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                      ) : (
-                        <div className="w-2 h-2 rounded-full bg-zinc-600" />
-                      )}
-                    </div>
-                    
                     <div className="flex-1 min-w-0 text-xs space-y-1">
                       <div className="flex items-center justify-between gap-2 font-medium">
                         <span className="truncate">{isActive ? 'Ongoing Outage' : 'Outage Resolved'}</span>
@@ -743,11 +717,11 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
                               : 'Resolved'}
                         </span>
                       </div>
-                      
+
                       <p className={`text-[11px] truncate ${isActive ? 'text-rose-300' : 'text-zinc-400'}`}>
                         {incident.reason || 'Service became unresponsive.'}
                       </p>
-                      
+
                       <div className="text-[9px] text-zinc-400 flex items-center gap-1">
                         <Calendar className="w-2.5 h-2.5" />
                         <span>{new Date(incident.startedAt).toLocaleString()}</span>
@@ -762,7 +736,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
 
       </div>
 
-      {/* Glassmorphic Delete Confirmation Modal */}
+      {}
       {isDeleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 ">
           <div className="w-full max-w-md p-6 bg-[#121214] border border-white/5 rounded-3xl shadow-xl shadow-2xl  space-y-6">
@@ -786,7 +760,7 @@ export default function WebsiteMonitorPage({ params }: { params: Promise<{ websi
               >
                 Cancel
               </button>
-              
+
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}

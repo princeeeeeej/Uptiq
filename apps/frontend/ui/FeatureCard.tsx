@@ -1,17 +1,13 @@
 'use client';
-
 import { useRef } from 'react';
 import gsap from 'gsap';
-
 interface Props {
   icon: React.ElementType;
   title: string;
   desc: string;
 }
-
 export default function FeatureCard({ icon: Icon, title, desc }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-
   const enter = () => {
     gsap.to(ref.current, {
       scale: 1.03,
@@ -19,7 +15,6 @@ export default function FeatureCard({ icon: Icon, title, desc }: Props) {
       ease: 'power2.out',
     });
   };
-
   const leave = () => {
     gsap.to(ref.current, {
       scale: 1,
@@ -27,7 +22,6 @@ export default function FeatureCard({ icon: Icon, title, desc }: Props) {
       ease: 'power2.inOut',
     });
   };
-
   return (
     <div
       ref={ref}
@@ -59,7 +53,6 @@ export default function FeatureCard({ icon: Icon, title, desc }: Props) {
         to-transparent
         "
       />
-
       <div
         className="
         mb-6
@@ -76,9 +69,7 @@ export default function FeatureCard({ icon: Icon, title, desc }: Props) {
       >
         <Icon className="w-5 h-5 text-zinc-300" />
       </div>
-
       <h3 className="text-lg font-medium mb-3">{title}</h3>
-
       <p className="text-sm text-zinc-500 leading-relaxed">{desc}</p>
     </div>
   );

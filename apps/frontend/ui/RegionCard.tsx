@@ -1,14 +1,11 @@
 "use client";
-
 import { useEffect, useState } from "react";
-
 interface Props {
   flag: string;
   name: string;
   code: string;
   ms: number;
 }
-
 export default function RegionCard({
   flag,
   name,
@@ -16,15 +13,12 @@ export default function RegionCard({
   ms,
 }: Props) {
   const [latency, setLatency] = useState(ms);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setLatency(ms + Math.round(Math.random() * 12 - 6));
     }, 2500);
-
     return () => clearInterval(interval);
   }, [ms]);
-
   return (
     <div
       className="
@@ -42,18 +36,15 @@ export default function RegionCard({
           <span className="text-xl">
             {flag}
           </span>
-
           <div>
             <p className="font-medium">
               {name}
             </p>
-
             <p className="text-xs text-zinc-500 uppercase tracking-widest">
               {code}
             </p>
           </div>
         </div>
-
         <div
           className="
           flex
@@ -73,7 +64,6 @@ export default function RegionCard({
           </span>
         </div>
       </div>
-
       <div>
         <div className="text-4xl font-semibold tracking-tight">
           {latency}
@@ -81,7 +71,6 @@ export default function RegionCard({
             ms
           </span>
         </div>
-
         <div className="mt-2 text-xs text-zinc-500">
           Average response time
         </div>

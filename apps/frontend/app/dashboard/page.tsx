@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, LayoutGrid, AlertCircle } from 'lucide-react';
+import { Plus, LayoutGrid, AlertCircle, Bell } from 'lucide-react';
+import Link from 'next/link';
 import WebsiteCard, { WebsiteData } from '@/components/dashboard/WebsiteCard';
 import AddWebsiteModal from '@/components/dashboard/AddWebsiteModal';
 
@@ -10,6 +11,21 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [user, setUser] = useState<{ username: string } | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetch('http://localhost:8080/user/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => data && setUser(data))
+      .catch(() => {});
+    }
+  }, []);
 
   const fetchWebsites = useCallback(async () => {
     try {
@@ -19,9 +35,9 @@ export default function DashboardPage() {
           Authorization: `Bearer ${token}`
         }
       });
-      
+
       if (!res.ok) throw new Error('Failed to fetch websites');
-      
+
       const data = await res.json();
       setWebsites(data.websites);
     } catch (err: any) {
@@ -33,16 +49,32 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchWebsites();
-    
-    // Optional: Poll every 30 seconds for live updates
+
     const interval = setInterval(fetchWebsites, 30000);
     return () => clearInterval(interval);
   }, [fetchWebsites]);
 
   return (
-    <div className="max-w-6xl w-full mx-auto space-y-8 animate-in fade-in duration-500">
-      {/* Top Metric Cards based on mockup */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="w-full flex flex-col h-full">
+      <div className="max-w-6xl w-full mx-auto animate-in fade-in duration-500 pb-8 flex flex-col h-full">
+        <header className="flex-shrink-0 h-24 mb-6 mt-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight text-white">
+              Hello, {user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : 'Admin'}!
+            </h1>
+            <p className="text-sm text-zinc-400 mt-1">Explore information and activity about your property</p>
+          </div>
+
+          <div className="flex items-center gap-4 hidden md:flex">
+            <Link href="/dashboard/incidents" className="w-12 h-12 rounded-full bg-[#121214] shadow-sm border border-white/5 flex items-center justify-center text-white hover:bg-[#18181b] hover:border-white/10 transition-colors">
+              <Bell className="w-5 h-5 text-zinc-300" />
+            </Link>
+          </div>
+        </header>
+      
+        <div className="space-y-8">
+          {/* Top Stats Row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-[#121214] rounded-[24px] p-6 shadow-lg shadow-black/20 border border-white/5 flex items-center justify-between">
           <div>
             <p className="text-zinc-400 text-sm mb-1">Active Monitors</p>
@@ -52,7 +84,7 @@ export default function DashboardPage() {
             <LayoutGrid className="w-5 h-5 text-zinc-400" />
           </div>
         </div>
-        
+
         <div className="bg-[#121214] rounded-[24px] p-6 shadow-lg shadow-black/20 border border-white/5 flex items-center justify-between">
           <div>
             <p className="text-zinc-400 text-sm mb-1">Global Regions</p>
@@ -77,7 +109,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Error State */}
+      {}
       {error && (
         <div className="p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center gap-3">
           <AlertCircle className="w-5 h-5" />
@@ -86,7 +118,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Content */}
+      {}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map(i => (
@@ -114,8 +146,8 @@ export default function DashboardPage() {
           {websites.map(website => (
             <WebsiteCard key={website.id} website={website} />
           ))}
-          
-          {/* Add New Monitor Card */}
+
+          {}
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="group flex flex-col items-center justify-center h-full min-h-[220px] bg-[#121214] border border-white/10 border-dashed rounded-[24px] hover:border-[#6B8E7B] hover:bg-[#10b981]/5 transition-all cursor-pointer"
@@ -128,7 +160,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Modal */}
+      {}
       <AddWebsiteModal 
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
@@ -137,6 +169,8 @@ export default function DashboardPage() {
           fetchWebsites();
         }} 
       />
+      </div>
+      </div>
     </div>
   );
 }

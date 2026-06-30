@@ -18,7 +18,7 @@ export interface WebsiteData {
 
 export default function WebsiteCard({ website }: { website: WebsiteData }) {
   const currentStatus = website.status?.currentStatus || 'UNKNOWN';
-  
+
   const statusColor = {
     UP: 'bg-[#10b981]',
     DOWN: 'bg-rose-500',
@@ -43,8 +43,8 @@ export default function WebsiteCard({ website }: { website: WebsiteData }) {
   return (
     <Link href={`/dashboard/monitor/${website.id}`} className="group block h-full">
       <div className="h-full p-6 bg-[#121214] border border-white/5 rounded-[24px] flex flex-col justify-between hover:shadow-xl shadow-black/40 transition-all duration-300">
-        
-        {/* Header */}
+
+        {}
         <div className="flex items-start justify-between mb-8">
           <div>
             <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-white transition-colors">
@@ -63,7 +63,7 @@ export default function WebsiteCard({ website }: { website: WebsiteData }) {
           </div>
         </div>
 
-        {/* Metrics Grid */}
+        {}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-[#18181b] rounded-xl p-4 border border-white/5">
             <div className="flex items-center gap-2 text-zinc-400 mb-2">
@@ -74,7 +74,7 @@ export default function WebsiteCard({ website }: { website: WebsiteData }) {
               {website.status?.lastResponseTimeMs ? `${website.status.lastResponseTimeMs}ms` : '--'}
             </div>
           </div>
-          
+
           <div className="bg-[#18181b] rounded-xl p-4 border border-white/5">
             <div className="flex items-center gap-2 text-zinc-400 mb-2">
               <Clock className="w-4 h-4" />

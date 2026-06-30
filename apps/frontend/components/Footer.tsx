@@ -1,7 +1,5 @@
 'use client';
-
 import { Activity } from 'lucide-react';
-
 export default function Footer() {
   return (
     <footer
@@ -28,10 +26,8 @@ export default function Footer() {
           >
             <Activity className="w-4 h-4" />
           </div>
-
           <span className="font-semibold">UPTIQ</span>
         </div>
-
         <p className="text-center text-zinc-500 text-sm">
           Distributed uptime monitoring platform.
         </p>

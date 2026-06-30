@@ -46,10 +46,10 @@ export default function CustomCursor() {
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const interactiveEl = target.closest('a, button, [role="button"], .feat-card, [data-cursor]');
-      
+
       if (interactiveEl) {
         const cursorType = interactiveEl.getAttribute('data-cursor');
-        
+
         if (cursorType === 'view') {
           setCursorText('VIEW');
           gsap.to(ring, {
@@ -73,7 +73,7 @@ export default function CustomCursor() {
           });
           gsap.to(dot, { scale: 0, duration: 0.2 });
         } else if (interactiveEl.classList.contains('feat-card')) {
-          // Bento Grid Card hover state (magnetic glow/scale)
+
           gsap.to(ring, {
             width: 54,
             height: 54,
@@ -84,7 +84,7 @@ export default function CustomCursor() {
           });
           gsap.to(dot, { scale: 1.5, backgroundColor: '#a78bfa', duration: 0.2 });
         } else {
-          // Standard interactive elements (links, buttons)
+
           setCursorText('');
           gsap.to(ring, {
             width: 48,
@@ -102,7 +102,7 @@ export default function CustomCursor() {
     const handleMouseOut = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const interactiveEl = target.closest('a, button, [role="button"], .feat-card, [data-cursor]');
-      
+
       if (interactiveEl) {
         setCursorText('');
         gsap.to(ring, {
@@ -121,7 +121,6 @@ export default function CustomCursor() {
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('mouseout', handleMouseOut);
 
-    // Inject style to disable standard cursor
     const styleSheet = document.createElement('style');
     styleSheet.innerHTML = `
       .cursor-none-all,
@@ -145,14 +144,14 @@ export default function CustomCursor() {
 
   return (
     <>
-      
-      {/* Central Targeting Dot */}
+
+      {}
       <div
         ref={dotRef}
         className="fixed top-0 left-0 w-1.5 h-1.5 bg-white rounded-full pointer-events-none z-[9999] mix-blend-difference"
       />
 
-      {/* Trailing Outer Ring */}
+      {}
       <div
         ref={ringRef}
         className="fixed top-0 left-0 w-8 h-8 border border-white/30 rounded-full pointer-events-none z-[9999] flex items-center justify-center text-[10px] font-mono font-bold tracking-wider text-white mix-blend-screen transition-colors duration-200"

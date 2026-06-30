@@ -1,17 +1,13 @@
 'use client';
-
 import { Activity, LogOut, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Magnetic from '@/ui/Magnetic';
-
 interface NavbarProps {
   scrolled: boolean;
 }
-
 export default function Navbar({ scrolled }: NavbarProps) {
   const [user, setUser] = useState<{ username: string } | null>(null);
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -31,16 +27,25 @@ export default function Navbar({ scrolled }: NavbarProps) {
       });
     }
   }, []);
-
   const handleSignOut = () => {
     localStorage.removeItem('token');
     setUser(null);
     window.location.reload();
   };
-
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-500"
+      className="
+        fixed
+        top-0
+        left-0
+        right-0
+        z-50
+        h-16
+        flex
+        items-center
+        transition-all
+        duration-500
+      "
       style={{
         background: scrolled ? 'rgba(9,9,11,0.75)' : 'transparent',
         backdropFilter: scrolled ? 'blur(24px)' : 'none',
@@ -48,8 +53,18 @@ export default function Navbar({ scrolled }: NavbarProps) {
         borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none',
       }}
     >
-      <div className="max-w-[1280px] mx-auto w-full px-6 flex items-center justify-between">
-        {/* Logo */}
+      <div 
+        className="
+          max-w-[1280px]
+          mx-auto
+          w-full
+          px-6
+          flex
+          items-center
+          justify-between
+        "
+      >
+        {}
         <Magnetic range={40} strength={0.25}>
           <Link href="/" className="flex items-center gap-3">
             <div
@@ -66,7 +81,6 @@ export default function Navbar({ scrolled }: NavbarProps) {
             >
               <Activity className="w-4 h-4 text-zinc-100" />
             </div>
-
             <span
               className="
               text-lg
@@ -78,13 +92,15 @@ export default function Navbar({ scrolled }: NavbarProps) {
             </span>
           </Link>
         </Magnetic>
-
-        {/* Links */}
+        {}
         <div className="hidden md:flex items-center gap-8">
-          {['Features', 'Architecture', 'Pricing', 'Changelog'].map((item) => (
-            <Magnetic key={item} range={30} strength={0.35}>
-              <a
-                href={`#${item.toLowerCase()}`}
+          {[
+            { label: 'Features', href: '/#features' },
+            { label: 'Architecture', href: '/architecture' },
+          ].map((item) => (
+            <Magnetic key={item.label} range={30} strength={0.35}>
+              <Link
+                href={item.href}
                 className="
                 text-sm
                 text-zinc-500
@@ -94,13 +110,12 @@ export default function Navbar({ scrolled }: NavbarProps) {
                 px-1
                 "
               >
-                {item}
-              </a>
+                {item.label}
+              </Link>
             </Magnetic>
           ))}
         </div>
-
-        {/* Actions */}
+        {}
         <div className="flex items-center gap-4">
           {user ? (
             <div className="flex items-center gap-4">
@@ -156,7 +171,6 @@ export default function Navbar({ scrolled }: NavbarProps) {
                   Sign In
                 </Link>
               </Magnetic>
-
               <Magnetic range={40} strength={0.2}>
                 <Link
                   href="/signup"

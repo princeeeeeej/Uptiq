@@ -12,7 +12,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   const pathname = usePathname();
 
   useEffect(() => {
-    // Disable smooth scroll on dashboard to prevent scroll hijacking and scroll locking
+
     if (pathname?.startsWith('/dashboard')) {
       return;
     }

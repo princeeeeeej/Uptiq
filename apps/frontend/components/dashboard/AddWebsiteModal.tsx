@@ -41,7 +41,7 @@ export default function AddWebsiteModal({ isOpen, onClose, onSuccess }: AddWebsi
 
       onSuccess();
       onClose();
-      // Reset form
+
       setName('');
       setUrl('');
       setSlug('');
@@ -55,11 +55,11 @@ export default function AddWebsiteModal({ isOpen, onClose, onSuccess }: AddWebsi
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-[#09090b] " onClick={onClose} />
-      
+
       <div className="relative w-full max-w-lg bg-[#121214] border border-white/5 rounded-3xl p-8 shadow-2xl overflow-hidden">
         {/* Decorative Glow */}
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#10b981]/10 rounded-full blur-[100px] pointer-events-none" />
-        
+
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-semibold text-white mb-1">Add Monitor</h2>

@@ -1,6 +1,5 @@
 import { prismaclient } from 'store/client';
 import { xAddBulk, CHECK_STREAM } from 'redisstream/client';
-
 async function main() {
   const websites = await prismaclient.website.findMany({
     where: {
@@ -11,9 +10,7 @@ async function main() {
       url: true,
     },
   });
-
   console.log(`Scheduling ${websites.length} websites`);
-
     await xAddBulk(
     CHECK_STREAM,
     websites.map((website) => ({
@@ -22,7 +19,5 @@ async function main() {
     })),
   );
 }
-
 main();
-
 setInterval(main, 3 * 60 * 1000);

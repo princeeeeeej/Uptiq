@@ -2,47 +2,37 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
-
 import { prismaclient } from 'store/client';
 import { AuthInput } from './types';
 import { authMiddleware } from './middleware';
-
 const app = express();
-
 app.use(cors());
 app.use(express.json());
-
 app.post('/user/signup', async (req, res) => {
   const data = AuthInput.safeParse(req.body);
-
   if (!data.success) {
     return res.status(400).json({
       message: 'Invalid input',
     });
   }
-
   try {
     const existingUser = await prismaclient.user.findUnique({
       where: {
         username: data.data.username,
       },
     });
-
     if (existingUser) {
       return res.status(409).json({
         message: 'Username already exists',
       });
     }
-
     const hashedPassword = await bcrypt.hash(data.data.password, 10);
-
     const user = await prismaclient.user.create({
       data: {
         username: data.data.username,
         password: hashedPassword,
       },
     });
-
     res.status(201).json({
       id: user.id,
     });
@@ -52,37 +42,30 @@ app.post('/user/signup', async (req, res) => {
     });
   }
 });
-
 app.post('/user/signin', async (req, res) => {
   const data = AuthInput.safeParse(req.body);
-
   if (!data.success) {
     return res.status(400).json({
       message: 'Invalid input',
     });
   }
-
   try {
     const user = await prismaclient.user.findUnique({
       where: {
         username: data.data.username,
       },
     });
-
     if (!user) {
       return res.status(403).json({
         message: 'Invalid credentials',
       });
     }
-
     const isValid = await bcrypt.compare(data.data.password, user.password);
-
     if (!isValid) {
       return res.status(403).json({
         message: 'Invalid credentials',
       });
     }
-
     const token = jwt.sign(
       {
         sub: user.id,
@@ -92,7 +75,6 @@ app.post('/user/signin', async (req, res) => {
         expiresIn: '7d',
       },
     );
-
     res.json({
       jwt: token,
     });
@@ -102,7 +84,6 @@ app.post('/user/signin', async (req, res) => {
     });
   }
 });
-
 app.get('/user/me', authMiddleware, async (req, res) => {
   try {
     const user = await prismaclient.user.findUnique({
@@ -114,26 +95,21 @@ app.get('/user/me', authMiddleware, async (req, res) => {
         username: true,
       },
     });
-
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: String(error) });
   }
 });
-
 app.post('/website', authMiddleware, async (req, res) => {
   const { name, url, slug } = req.body;
-
   if (!name || !url || !slug) {
     return res.status(400).json({
       message: 'name, url and slug are required',
     });
   }
-
   try {
     const website = await prismaclient.website.create({
       data: {
@@ -143,7 +119,6 @@ app.post('/website', authMiddleware, async (req, res) => {
         userId: req.userId!,
       },
     });
-
     res.status(201).json({
       id: website.id,
     });
@@ -153,7 +128,6 @@ app.post('/website', authMiddleware, async (req, res) => {
     });
   }
 });
-
 app.get('/websites', authMiddleware, async (req, res) => {
   try {
     const websites = await prismaclient.website.findMany({
@@ -167,7 +141,6 @@ app.get('/websites', authMiddleware, async (req, res) => {
         createdAt: 'desc',
       },
     });
-
     res.json({
       websites,
     });
@@ -177,7 +150,6 @@ app.get('/websites', authMiddleware, async (req, res) => {
     });
   }
 });
-
 app.get('/website/:websiteId', authMiddleware, async (req, res) => {
   const websiteId = req.params.websiteId as string;
   try {
@@ -191,27 +163,20 @@ app.get('/website/:websiteId', authMiddleware, async (req, res) => {
         sslStatus: true,
       },
     });
-
     if (!website) {
       return res.status(404).json({
         message: 'Website not found',
       });
     }
-
     res.json({
       id: website.id,
       name: website.name,
       url: website.url,
       slug: website.slug,
-
       currentStatus: website.status?.currentStatus ?? 'UNKNOWN',
-
       responseTime: website.status?.lastResponseTimeMs ?? null,
-
       consecutiveFails: website.status?.consecutiveFails ?? 0,
-
       lastCheckedAt: website.status?.lastCheckedAt ?? null,
-
       ssl: website.sslStatus,
     });
   } catch (error) {
@@ -220,7 +185,6 @@ app.get('/website/:websiteId', authMiddleware, async (req, res) => {
     });
   }
 });
-
 app.get('/website/:websiteId/ticks', authMiddleware, async (req, res) => {
   const websiteId = req.params.websiteId as string;
   try {
@@ -230,13 +194,11 @@ app.get('/website/:websiteId/ticks', authMiddleware, async (req, res) => {
         userId: req.userId!,
       },
     });
-
     if (!website) {
       return res.status(404).json({
         message: 'Website not found',
       });
     }
-
     const ticks = await prismaclient.websiteTick.findMany({
       where: { websiteId },
       orderBy: { checkedAt: 'desc' },
@@ -245,7 +207,6 @@ app.get('/website/:websiteId/ticks', authMiddleware, async (req, res) => {
         region: true,
       }
     });
-
     res.json({
       ticks: ticks.reverse(),
     });
@@ -253,6 +214,27 @@ app.get('/website/:websiteId/ticks', authMiddleware, async (req, res) => {
     res.status(500).json({
       error: String(error),
     });
+  }
+});
+app.get('/incidents', authMiddleware, async (req, res) => {
+  try {
+    const incidents = await prismaclient.incident.findMany({
+      where: {
+        website: {
+          userId: req.userId!
+        }
+      },
+      include: {
+        website: {
+          select: { name: true, url: true }
+        }
+      },
+      orderBy: { startedAt: 'desc' },
+      take: 50,
+    });
+    res.json({ incidents });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
   }
 });
 
@@ -265,19 +247,16 @@ app.get('/website/:websiteId/incidents', authMiddleware, async (req, res) => {
         userId: req.userId!,
       },
     });
-
     if (!website) {
       return res.status(404).json({
         message: 'Website not found',
       });
     }
-
     const incidents = await prismaclient.incident.findMany({
       where: { websiteId },
       orderBy: { startedAt: 'desc' },
       take: 20,
     });
-
     res.json({
       incidents,
     });
@@ -287,10 +266,8 @@ app.get('/website/:websiteId/incidents', authMiddleware, async (req, res) => {
     });
   }
 });
-
 app.delete('/website/:websiteId', authMiddleware, async (req, res) => {
   const websiteId = req.params.websiteId as string;
-
   try {
     const website = await prismaclient.website.findFirst({
       where: {
@@ -298,19 +275,16 @@ app.delete('/website/:websiteId', authMiddleware, async (req, res) => {
         userId: req.userId!,
       },
     });
-
     if (!website) {
       return res.status(404).json({
         message: 'Website not found',
       });
     }
-
     await prismaclient.website.delete({
       where: {
         id: website.id,
       },
     });
-
     res.json({
       success: true,
     });
@@ -318,6 +292,59 @@ app.delete('/website/:websiteId', authMiddleware, async (req, res) => {
     res.status(500).json({
       error: String(error),
     });
+  }
+});
+app.get('/alert-channels', authMiddleware, async (req, res) => {
+  try {
+    const channels = await prismaclient.alertChannel.findMany({
+      where: { userId: req.userId! },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json({ channels });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.post('/alert-channels', authMiddleware, async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: 'email is required' });
+  }
+  
+  try {
+    const channel = await prismaclient.alertChannel.create({
+      data: {
+        userId: req.userId!,
+        type: 'EMAIL',
+        config: { to: email },
+        isActive: true,
+      }
+    });
+    res.status(201).json({ id: channel.id });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.delete('/alert-channels/:id', authMiddleware, async (req, res) => {
+  const id = req.params.id as string;
+  try {
+    const channel = await prismaclient.alertChannel.findFirst({
+      where: { id, userId: req.userId! }
+    });
+    
+    if (!channel) {
+      return res.status(404).json({ message: 'Alert channel not found' });
+    }
+    
+    await prismaclient.alertChannel.delete({
+      where: { id }
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
   }
 });
 

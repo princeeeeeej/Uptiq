@@ -64,7 +64,6 @@ export default function TextRevealer({
     }
   }, [delay, duration, stagger, triggerOnScroll]);
 
-  // Split logic
   const renderContent = () => {
     if (type === 'words') {
       return text.split(' ').map((word, idx) => (

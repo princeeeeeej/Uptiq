@@ -73,18 +73,15 @@ async function processBatch() {
     return;
   }
 
-  // 1. Fetch all websites concurrently
   const checkResults = await Promise.all(
     messages.map(({ message }) => fetchWebsite(message.url, message.id)),
   );
 
-  // 2. Push all results to the DB writer stream
   await xAddBulk(
     DB_WRITE_STREAM,
     checkResults as unknown as Record<string, string>[]
   );
 
-  // 3. Acknowledge original jobs
   await xAckBulk(
     CHECK_STREAM,
     REGION_ID,

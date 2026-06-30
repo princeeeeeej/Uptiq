@@ -6,8 +6,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col relative overflow-hidden">
       <Noise />
-      
-      {/* Background Sci-Fi Effects */}
+
+      {}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] rounded-[100%] blur-[120px] opacity-30 mix-blend-screen"
@@ -23,7 +23,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           Back to home
         </Link>
       </div>
-      
+
       <main className="flex-1 flex flex-col items-center justify-center relative z-10 w-full px-6 py-20">
         {children}
       </main>

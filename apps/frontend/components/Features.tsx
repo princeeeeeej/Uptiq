@@ -17,7 +17,7 @@ export default function Features() {
     if (!el) return;
 
     const ctx = gsap.context(() => {
-      // Entry transitions for bento grid cards
+
       gsap.fromTo(
         el.querySelectorAll('.feat-card'),
         {
@@ -39,7 +39,6 @@ export default function Features() {
         }
       );
 
-      // Animate top line separator
       const topline = el.querySelector('.features-top-line');
       if (topline) {
         gsap.to(topline, {
@@ -53,7 +52,6 @@ export default function Features() {
         });
       }
 
-      // Count up animation triggered on scroll
       const counterEl = counterRef.current;
       if (counterEl) {
         ScrollTrigger.create({
@@ -91,7 +89,6 @@ export default function Features() {
     const xc = rect.width / 2;
     const yc = rect.height / 2;
 
-    // Subtle 3D tilt calculation (max ~6 degrees)
     const rotateX = -(y - yc) / 20;
     const rotateY = (x - xc) / 20;
 
@@ -141,7 +138,7 @@ export default function Features() {
 
   return (
     <section ref={sectionRef} className="py-32 px-6 relative overflow-hidden" id="features">
-      {/* Decorative horizontal separator line */}
+      {}
       <div className="w-full h-px bg-white/10 origin-left scale-x-0 absolute top-0 left-0 features-top-line z-10" />
 
       <div className="max-w-[1280px] mx-auto">
@@ -158,25 +155,43 @@ export default function Features() {
           tracking-[-0.06em]
           max-w-4xl
           mb-20
-          h-[1.2em]
-          overflow-hidden
           "
         >
           <TextRevealer text="Built for teams that can't afford downtime." type="words" triggerOnScroll={true} />
         </h2>
 
         <div className="grid md:grid-cols-3 gap-5 perspective-[2000px]">
-          {/* Hero Card: Live Monitoring (Span 3) */}
+          {}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="feat-card md:col-span-3 group relative overflow-hidden rounded-[40px] border border-white/10 bg-zinc-950/80 p-8 md:p-12 transition-all flex flex-col md:flex-row justify-between items-center min-h-[400px] cursor-default"
+            className="
+              feat-card
+              md:col-span-3
+              group
+              relative
+              overflow-hidden
+              rounded-[40px]
+              border
+              border-white/10
+              bg-zinc-950/80
+              p-8
+              md:p-12
+              transition-all
+              flex
+              flex-col
+              md:flex-row
+              justify-between
+              items-center
+              min-h-[400px]
+              cursor-default
+            "
             style={{ transformStyle: 'preserve-3d' }}
           >
-            {/* Spotlight and Ambient glow */}
+            {}
             <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(52,211,153,0.1),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(52,211,153,0.06),transparent_70%)] pointer-events-none" />
-            
+
             <div className="relative z-10 md:w-1/2 mb-10 md:mb-0 pointer-events-none">
               <div className="w-16 h-16 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(52,211,153,0.2)]">
                 <Activity className="w-8 h-8 text-emerald-400" />
@@ -199,23 +214,39 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Card: Architecture (Span 3) */}
+          {}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="feat-card md:col-span-3 group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 transition-all flex flex-col justify-between cursor-default"
+            className="
+              feat-card
+              md:col-span-3
+              group
+              relative
+              overflow-hidden
+              rounded-3xl
+              border
+              border-white/10
+              bg-zinc-950/50
+              p-8
+              transition-all
+              flex
+              flex-col
+              justify-between
+              cursor-default
+            "
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(255,255,255,0.03),transparent_70%)] pointer-events-none" />
-            
+
             <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-10">
               <div className="md:w-1/2 pointer-events-none">
                 <h3 className="text-3xl md:text-5xl font-semibold tracking-tight leading-tight">
                   <span className="text-white">Global.</span> <span className="text-zinc-300">Distributed.</span> <span className="text-zinc-600">Fault-Tolerant.</span>
                 </h3>
               </div>
-              
+
               <div className="md:w-1/2 grid grid-cols-2 gap-4 w-full" style={{ transform: 'translateZ(30px)' }}>
                 {[
                   { label: 'Latency', value: '12ms' },
@@ -232,17 +263,34 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Card 1: Multi-region (Span 2) */}
+          {}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="feat-card md:col-span-2 group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 transition-all flex flex-col justify-between min-h-[360px] cursor-default"
+            className="
+              feat-card
+              md:col-span-2
+              group
+              relative
+              overflow-hidden
+              rounded-3xl
+              border
+              border-white/10
+              bg-zinc-950/50
+              p-8
+              transition-all
+              flex
+              flex-col
+              justify-between
+              min-h-[360px]
+              cursor-default
+            "
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.1),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,92,246,0.06),transparent_50%)] pointer-events-none" />
-            
-            {/* Mock UI */}
+
+            {}
             <div 
               className="absolute top-8 right-8 w-64 h-40 border border-white/5 bg-white/[0.02] rounded-2xl p-4 flex flex-col gap-3 group-hover:scale-[1.08] group-hover:-translate-y-2 group-hover:-rotate-2 transition-transform duration-700 shadow-xl group-hover:shadow-[0_0_40px_rgba(139,92,246,0.2)]"
               style={{ transform: 'translateZ(35px)' }}
@@ -273,16 +321,33 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Card 2: Webhooks (Span 1) */}
+          {}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="feat-card md:col-span-1 group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 transition-all flex flex-col justify-between min-h-[360px] cursor-default"
+            className="
+              feat-card
+              md:col-span-1
+              group
+              relative
+              overflow-hidden
+              rounded-3xl
+              border
+              border-white/10
+              bg-zinc-950/50
+              p-8
+              transition-all
+              flex
+              flex-col
+              justify-between
+              min-h-[360px]
+              cursor-default
+            "
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.1),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(56,189,248,0.06),transparent_50%)] pointer-events-none" />
-            
+
             <div className="relative z-10 w-full mb-10 flex justify-end" style={{ transform: 'translateZ(30px)' }}>
               <div className="bg-white/[0.05] border border-white/10 rounded-2xl p-4 flex gap-3 items-start w-48 group-hover:scale-105 group-hover:-translate-x-2 transition-transform duration-500 shadow-lg">
                 <div className="w-6 h-6 rounded bg-rose-500/20 flex items-center justify-center shrink-0">
@@ -301,16 +366,33 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Card 3: SSL Expiry (Span 1) */}
+          {}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="feat-card md:col-span-1 group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 transition-all flex flex-col justify-between min-h-[360px] cursor-default"
+            className="
+              feat-card
+              md:col-span-1
+              group
+              relative
+              overflow-hidden
+              rounded-3xl
+              border
+              border-white/10
+              bg-zinc-950/50
+              p-8
+              transition-all
+              flex
+              flex-col
+              justify-between
+              min-h-[360px]
+              cursor-default
+            "
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.1),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(251,191,36,0.06),transparent_60%)] pointer-events-none" />
-            
+
             <div className="relative z-10 w-full mb-10" style={{ transform: 'translateZ(35px)' }}>
               <div className="w-24 h-24 mx-auto rounded-full border-4 border-amber-500/30 border-t-amber-400 flex items-center justify-center relative group-hover:rotate-[360deg] transition-transform duration-[2000ms] ease-out shadow-[0_0_20px_rgba(245,158,11,0.2)]">
                 <div className="absolute inset-0 rounded-full border border-white/5 m-2" />
@@ -327,16 +409,33 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Card 4: Incident Timeline (Span 2) */}
+          {}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="feat-card md:col-span-2 group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 transition-all flex flex-col justify-between min-h-[360px] cursor-default"
+            className="
+              feat-card
+              md:col-span-2
+              group
+              relative
+              overflow-hidden
+              rounded-3xl
+              border
+              border-white/10
+              bg-zinc-950/50
+              p-8
+              transition-all
+              flex
+              flex-col
+              justify-between
+              min-h-[360px]
+              cursor-default
+            "
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(52,211,153,0.1),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(52,211,153,0.06),transparent_50%)] pointer-events-none" />
-            
+
             <div 
               className="absolute top-8 right-8 w-64 border border-white/5 bg-white/[0.02] rounded-2xl p-5 group-hover:scale-105 group-hover:-translate-x-2 group-hover:rotate-2 transition-transform duration-700 shadow-xl group-hover:shadow-[0_0_30px_rgba(52,211,153,0.15)]"
               style={{ transform: 'translateZ(30px)' }}
@@ -364,16 +463,33 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Card 5: Fault Tolerant Queues (Span 2) */}
+          {}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="feat-card md:col-span-2 group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 transition-all flex flex-col justify-between min-h-[360px] cursor-default"
+            className="
+              feat-card
+              md:col-span-2
+              group
+              relative
+              overflow-hidden
+              rounded-3xl
+              border
+              border-white/10
+              bg-zinc-950/50
+              p-8
+              transition-all
+              flex
+              flex-col
+              justify-between
+              min-h-[360px]
+              cursor-default
+            "
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.1),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_left,rgba(56,189,248,0.06),transparent_50%)] pointer-events-none" />
-            
+
             <div className="absolute right-8 top-8 w-64 flex flex-col gap-2 group-hover:scale-105 group-hover:translate-x-2 transition-transform duration-500" style={{ transform: 'translateZ(30px)' }}>
               {[1, 2, 3].map((i) => (
                 <div key={i} className={`flex items-center gap-3 bg-white/[0.03] border border-white/10 rounded-xl p-3 ${i === 1 ? 'opacity-100' : i === 2 ? 'opacity-60' : 'opacity-30'}`}>
@@ -393,16 +509,33 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Card 6: Public Status Page (Span 1) */}
+          {}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="feat-card md:col-span-1 group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-950/50 p-8 transition-all flex flex-col justify-between min-h-[360px] cursor-default"
+            className="
+              feat-card
+              md:col-span-1
+              group
+              relative
+              overflow-hidden
+              rounded-3xl
+              border
+              border-white/10
+              bg-zinc-950/50
+              p-8
+              transition-all
+              flex
+              flex-col
+              justify-between
+              min-h-[360px]
+              cursor-default
+            "
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="glow-spotlight absolute pointer-events-none w-80 h-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06),transparent_60%)] -translate-x-1/2 -translate-y-1/2 opacity-0 z-0" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03),transparent_60%)] pointer-events-none" />
-            
+
             <div className="relative z-10 w-full mb-10 flex justify-center mt-4" style={{ transform: 'translateZ(35px)' }}>
               <div className="w-40 bg-zinc-900 border border-white/10 rounded-t-xl overflow-hidden shadow-2xl group-hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] transition-shadow">
                 <div className="h-4 bg-zinc-800 flex items-center px-2 gap-1">
@@ -432,7 +565,7 @@ export default function Features() {
               <p className="text-zinc-400 text-sm">Share uptime transparency with customers instantly.</p>
             </div>
           </div>
-          
+
         </div>
       </div>
     </section>

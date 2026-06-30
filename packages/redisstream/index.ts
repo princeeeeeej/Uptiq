@@ -1,5 +1,4 @@
 import { createClient } from 'redis';
-
 const client = await createClient({
   url: process.env.REDIS_URL,
 })
@@ -7,21 +6,17 @@ const client = await createClient({
     console.error('Redis Client Error', err),
   )
   .connect();
-
 export const CHECK_STREAM = 'uptiq:checks';
 export const DB_WRITE_STREAM = 'uptiq:db-write';
 export const FAILED_STREAM = 'uptiq:failed';
-
 export type WebsiteEvent = {
   url: string;
   id: string;
 };
-
 export type StreamMessage<T = Record<string, string>> = {
   id: string;
   message: T;
 };
-
 export type DBWriteEvent = {
   websiteId: string;
   regionId: string;
@@ -32,14 +27,12 @@ export type DBWriteEvent = {
   errorMessage: string;
   checkedAt: string;
 };
-
 export async function xAdd(
   stream: string,
   data: Record<string, string>,
 ) {
   await client.xAdd(stream, '*', data);
 }
-
 export async function xAddBulk(
   stream: string,
   events: Record<string, string>[],
@@ -48,7 +41,6 @@ export async function xAddBulk(
     events.map((event) => xAdd(stream, event)),
   );
 }
-
 export async function xReadGroup<T>(
   stream: string,
   consumerGroup: string,
@@ -67,11 +59,9 @@ export async function xReadGroup<T>(
       BLOCK: 5000,
     },
   );
-
   return res?.[0]
     ?.messages as StreamMessage<T>[] | undefined;
 }
-
 export async function xAck(
   stream: string,
   consumerGroup: string,
@@ -83,7 +73,6 @@ export async function xAck(
     eventId,
   );
 }
-
 export async function xAckBulk(
   stream: string,
   consumerGroup: string,
@@ -95,7 +84,6 @@ export async function xAckBulk(
     ),
   );
 }
-
 export async function xCreateGroup(
   stream: string,
   consumerGroup: string,
@@ -117,7 +105,6 @@ export async function xCreateGroup(
     }
   }
 }
-
 export async function reclaimStuck(
   stream: string,
   consumerGroup: string,
@@ -133,11 +120,9 @@ export async function reclaimStuck(
       '+',
       count,
     );
-
   if (!pending.length) {
     return [];
   }
-
   const stuckIds = pending
     .filter(
       (p) =>
@@ -145,11 +130,9 @@ export async function reclaimStuck(
         minIdleMs,
     )
     .map((p) => p.id);
-
   if (!stuckIds.length) {
     return [];
   }
-
   return client.xClaim(
     stream,
     consumerGroup,
@@ -158,7 +141,6 @@ export async function reclaimStuck(
     stuckIds,
   );
 }
-
 export async function xAddToDLQ(
   payload: Record<string, string>,
 ) {

@@ -10,13 +10,10 @@ import {
 import { prismaclient } from 'store/client';
 import tls from 'tls';
 import { URL } from 'url';
+import { fireAlerts, type AlertPayload } from './alerts';
 
 const REGION_ID = process.env.REGION_ID || 'global-writer';
 const WORKER_ID = process.env.WORKER_ID || `dbwriter-${Math.random().toString(36).substring(2, 9)}`;
-
-// ============================================================================
-// Types
-// ============================================================================
 
 type TickData = {
   websiteId: string;
@@ -29,13 +26,6 @@ type TickData = {
   url?: string;
 };
 
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Checks the SSL certificate of a given HTTPS URL and returns its details.
- */
 async function getSSLCertDetails(urlString: string): Promise<{ issuer: string; validFrom: Date; validUntil: Date; daysRemaining: number } | null> {
   return new Promise((resolve) => {
     try {
@@ -43,7 +33,7 @@ async function getSSLCertDetails(urlString: string): Promise<{ issuer: string; v
       if (parsedUrl.protocol !== 'https:') {
         return resolve(null);
       }
-      
+
       const port = parsedUrl.port ? parseInt(parsedUrl.port) : 443;
       const socket = tls.connect({
         host: parsedUrl.hostname,
@@ -53,13 +43,13 @@ async function getSSLCertDetails(urlString: string): Promise<{ issuer: string; v
       }, () => {
         const cert = socket.getPeerCertificate();
         socket.destroy();
-        
+
         if (!cert || !cert.valid_to) return resolve(null);
-        
+
         const validFrom = new Date(cert.valid_from);
         const validUntil = new Date(cert.valid_to);
         const daysRemaining = Math.max(0, Math.ceil((validUntil.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-        
+
         resolve({
           issuer: cert.issuer.CN || cert.issuer.O || 'Unknown',
           validFrom,
@@ -67,7 +57,7 @@ async function getSSLCertDetails(urlString: string): Promise<{ issuer: string; v
           daysRemaining
         });
       });
-      
+
       socket.on('error', () => resolve(null));
       socket.setTimeout(5000);
       socket.on('timeout', () => {
@@ -80,9 +70,6 @@ async function getSSLCertDetails(urlString: string): Promise<{ issuer: string; v
   });
 }
 
-/**
- * Parses raw Redis stream string records into typed JavaScript objects.
- */
 function parseMessages(messages: StreamMessage<DBWriteEvent>[]): TickData[] {
   return messages.map(({ message }) => ({
     websiteId: message.websiteId,
@@ -96,10 +83,6 @@ function parseMessages(messages: StreamMessage<DBWriteEvent>[]): TickData[] {
   }));
 }
 
-/**
- * If a single website was checked multiple times in a single batch,
- * we only want to keep the most recent check to update its "current status".
- */
 function getLatestTickPerWebsite(ticks: TickData[]): Map<string, TickData> {
   const latestStatusMap = new Map<string, TickData>();
   for (const tick of ticks) {
@@ -108,15 +91,14 @@ function getLatestTickPerWebsite(ticks: TickData[]): Map<string, TickData> {
   return latestStatusMap;
 }
 
-/**
- * Compares the new tick against the database's current status and generates
- * the necessary Prisma operations (upsert status, create/resolve incidents).
- */
-async function buildStatusAndIncidentOps(latestTicksMap: Map<string, TickData>) {
+async function buildStatusAndIncidentOps(
+  latestTicksMap: Map<string, TickData>,
+  websiteMap: Map<string, { id: string; name: string; url: string }>
+) {
   const ops: any[] = [];
+  const alerts: AlertPayload[] = [];
   const websiteIds = Array.from(latestTicksMap.keys());
-  
-  // 1. Fetch current state from DB
+
   const currentStatuses = await prismaclient.websiteStatusCurrent.findMany({
     where: { websiteId: { in: websiteIds } },
   });
@@ -127,18 +109,16 @@ async function buildStatusAndIncidentOps(latestTicksMap: Map<string, TickData>) 
   });
   const activeIncidentMap = new Map(activeIncidents.map(i => [i.websiteId, i]));
 
-  // 2. Build operations for each website
   for (const [websiteId, latestTick] of latestTicksMap.entries()) {
     const currentStatus = currentStatusMap.get(websiteId);
     const activeIncident = activeIncidentMap.get(websiteId);
-    
-    // Calculate consecutive fails
+    const website = websiteMap.get(websiteId);
+
     let consecutiveFails = 0;
     if (latestTick.status === 'DOWN') {
       consecutiveFails = (currentStatus?.consecutiveFails ?? 0) + 1;
     }
 
-    // Queue: Update current status
     ops.push(
       prismaclient.websiteStatusCurrent.upsert({
         where: { websiteId },
@@ -158,24 +138,33 @@ async function buildStatusAndIncidentOps(latestTicksMap: Map<string, TickData>) 
       })
     );
 
-    // Queue: Incident logic
     const previousStatus = currentStatus?.currentStatus ?? 'UNKNOWN';
 
     if (previousStatus !== 'DOWN' && latestTick.status === 'DOWN') {
-      // Site just went down -> Create incident
+
       if (!activeIncident) {
+        const reason = latestTick.errorMessage || `Status check failed with code ${latestTick.statusCode}`;
         ops.push(
           prismaclient.incident.create({
             data: {
               websiteId,
               startedAt: latestTick.checkedAt,
-              reason: latestTick.errorMessage || `Status check failed with code ${latestTick.statusCode}`,
+              reason,
             },
           })
         );
+        if (website) {
+          alerts.push({
+            websiteId,
+            websiteName: website.name,
+            websiteUrl: website.url,
+            eventType: 'DOWN',
+            reason,
+          });
+        }
       }
     } else if (previousStatus === 'DOWN' && latestTick.status === 'UP') {
-      // Site just came back up -> Resolve incident
+
       if (activeIncident) {
         const resolvedAt = latestTick.checkedAt;
         const durationSeconds = Math.ceil((resolvedAt.getTime() - activeIncident.startedAt.getTime()) / 1000);
@@ -185,29 +174,37 @@ async function buildStatusAndIncidentOps(latestTicksMap: Map<string, TickData>) 
             data: { resolvedAt, durationSeconds },
           })
         );
+        if (website) {
+          alerts.push({
+            websiteId,
+            websiteName: website.name,
+            websiteUrl: website.url,
+            eventType: 'RECOVERED',
+          });
+        }
       }
     }
   }
 
-  return ops;
+  return { ops, alerts };
 }
 
-/**
- * Checks SSL for all HTTPS websites in the batch concurrently,
- * and generates the necessary Prisma upsert operations.
- */
-async function buildSSLOps(latestTicksMap: Map<string, TickData>) {
+async function buildSSLOps(
+  latestTicksMap: Map<string, TickData>,
+  websiteMap: Map<string, { id: string; name: string; url: string }>
+) {
   const ops: any[] = [];
-  
+  const alerts: AlertPayload[] = [];
+
   const sslChecks = Array.from(latestTicksMap.values())
     .filter(tick => tick.url && tick.url.startsWith('https://'))
     .map(async tick => {
       const ssl = await getSSLCertDetails(tick.url!);
       return { websiteId: tick.websiteId, ssl };
     });
-    
+
   const sslResults = await Promise.all(sslChecks);
-  
+
   for (const { websiteId, ssl } of sslResults) {
     if (ssl) {
       ops.push(
@@ -230,53 +227,66 @@ async function buildSSLOps(latestTicksMap: Map<string, TickData>) {
           },
         })
       );
+
+      if (ssl.daysRemaining <= 14) {
+        const website = websiteMap.get(websiteId);
+        if (website) {
+          alerts.push({
+            websiteId,
+            websiteName: website.name,
+            websiteUrl: website.url,
+            eventType: 'SSL_EXPIRING',
+            daysRemaining: ssl.daysRemaining,
+          });
+        }
+      }
     }
   }
 
-  return ops;
+  return { ops, alerts };
 }
 
-// ============================================================================
-// Main Processing Loop
-// ============================================================================
-
 async function processBatch() {
-  // 1. Read a batch of jobs from Redis
+
   const messages = await xReadGroup<DBWriteEvent>(
     DB_WRITE_STREAM,
     REGION_ID,
     WORKER_ID,
-    50 // Max messages per batch
+    50 
   );
 
   if (!messages?.length) return;
 
   try {
-    // 2. Parse and deduplicate the data
+
     const ticksData = parseMessages(messages);
     const latestTicksMap = getLatestTickPerWebsite(ticksData);
 
-    // 3. Build all database operations (inserts, upserts, updates)
+    const websiteIds = Array.from(latestTicksMap.keys());
+    const websites = await prismaclient.website.findMany({
+      where: { id: { in: websiteIds } },
+      select: { id: true, name: true, url: true }
+    });
+    const websiteMap = new Map(websites.map(w => [w.id, w]));
+
     const transactionOps: any[] = [];
-    
-    // - Add the raw ticks (one for every check)
-    // NOTE: We don't need URL in the database tick, so we can map it out, 
-    // or rely on Prisma to ignore extra fields if it's strict, but it's safer to map.
+
     const cleanTicksData = ticksData.map(({ url, ...rest }) => rest);
     transactionOps.push(prismaclient.websiteTick.createMany({ data: cleanTicksData }));
 
-    // - Add status updates and incident transitions
-    const statusAndIncidentOps = await buildStatusAndIncidentOps(latestTicksMap);
-    transactionOps.push(...statusAndIncidentOps);
+    const statusResults = await buildStatusAndIncidentOps(latestTicksMap, websiteMap);
+    transactionOps.push(...statusResults.ops);
 
-    // - Add SSL certificate updates
-    const sslOps = await buildSSLOps(latestTicksMap);
-    transactionOps.push(...sslOps);
+    const sslResults = await buildSSLOps(latestTicksMap, websiteMap);
+    transactionOps.push(...sslResults.ops);
 
-    // 4. Execute all operations atomically in a single transaction
     await prismaclient.$transaction(transactionOps);
-    
-    // 5. Acknowledge the processed messages so they aren't read again
+
+    const allAlerts = [...statusResults.alerts, ...sslResults.alerts];
+    for (const alert of allAlerts) {
+      fireAlerts(alert).catch(err => console.error(`[${WORKER_ID}] Alert failed:`, err));
+    }
+
     await xAckBulk(
       DB_WRITE_STREAM,
       REGION_ID,
@@ -294,12 +304,10 @@ async function main() {
 
   await xCreateGroup(DB_WRITE_STREAM, REGION_ID);
 
-  // Automatically retry jobs that crashed midway through processing
   setInterval(() => {
     reclaimStuck(DB_WRITE_STREAM, REGION_ID, WORKER_ID).catch(console.error);
   }, 30_000);
 
-  // Continuous polling loop
   while (true) {
     try {
       await processBatch();

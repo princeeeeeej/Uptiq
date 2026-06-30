@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
-import CustomCursor from "@/ui/CustomCursor";
+
 import InteractiveGrid from "@/ui/InteractiveGrid";
 
 const geistSans = Geist({
@@ -32,7 +32,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#09090b]">
         <InteractiveGrid />
-        <CustomCursor />
+
         <SmoothScroll>
           {children}
         </SmoothScroll>
