@@ -66,12 +66,13 @@ export default function SignInPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs font-mono uppercase tracking-widest text-zinc-500">Username</label>
+              <label htmlFor='Email' className="text-xs font-mono uppercase tracking-widest text-zinc-500">Username</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-zinc-500" />
                 </div>
                 <input 
+                  id="Email"
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -84,11 +85,12 @@ export default function SignInPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-mono uppercase tracking-widest text-zinc-500">Password</label>
+                <label htmlFor="Password" className="text-xs font-mono uppercase tracking-widest text-zinc-500">Password</label>
                 <Link href="#" className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors">Forgot?</Link>
               </div>
               <div className="relative">
                 <input 
+                  id='Password'
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

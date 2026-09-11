@@ -64,12 +64,13 @@ export default function SignUpPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs font-mono uppercase tracking-widest text-zinc-500">Username</label>
+              <label htmlFor='Email' className="text-xs font-mono uppercase tracking-widest text-zinc-500">Username</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-zinc-500" />
                 </div>
-                <input 
+                <input
+                  id="Email"
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -81,9 +82,10 @@ export default function SignUpPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-mono uppercase tracking-widest text-zinc-500">Password</label>
+              <label htmlFor='Password' className="text-xs font-mono uppercase tracking-widest text-zinc-500">Password</label>
               <div className="relative">
-                <input 
+                <input
+                  id="Password"
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

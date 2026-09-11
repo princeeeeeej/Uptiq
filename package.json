@@ -9,6 +9,7 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/bun": "latest",
     "prettier": "^3.7.4",
     "strip-comments": "^2.0.1",

@@ -26,6 +26,9 @@ coverage
 out/
 build
 dist
+playwright-report
+playwright
+test-results
 
 
 # Debug
